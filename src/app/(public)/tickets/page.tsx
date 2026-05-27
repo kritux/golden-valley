@@ -88,7 +88,7 @@ export default function TicketsPage() {
             — Ticket Registry —
           </p>
           <h1 className="font-[var(--font-playfair)] text-3xl md:text-5xl text-gold-gradient mb-4">
-            All 1,000 Numbers
+            All 1,000 Tickets — 000 to 999
           </h1>
           <p className="text-[var(--white-muted)] text-sm">
             Click an available (gold) number to purchase that ticket
@@ -149,7 +149,7 @@ export default function TicketsPage() {
             {tickets.map((ticket) => (
               <div
                 key={ticket.number}
-                title={`#${ticket.number} — ${ticket.status}`}
+                title={`#${String(ticket.number - 1).padStart(3, '0')} — ${ticket.status}`}
                 onClick={() => handleTicketClick(ticket)}
                 role={ticket.status === 'available' ? 'button' : undefined}
                 tabIndex={ticket.status === 'available' ? 0 : undefined}
@@ -163,7 +163,7 @@ export default function TicketsPage() {
                   cellStyle(ticket.status),
                 ].join(' ')}
               >
-                {ticket.number}
+                {String(ticket.number - 1).padStart(3, '0')}
               </div>
             ))}
           </div>

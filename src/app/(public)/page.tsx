@@ -20,6 +20,9 @@ const purchaseSchema = z
     email_confirm: z.string().email('Invalid email'),
     phone: z.string().min(10, 'Enter a valid phone number'),
     phone_alt: z.string().optional(),
+    city: z.string().min(1, 'Required'),
+    state: z.string().min(1, 'Required'),
+    nationality: z.string().min(1, 'Required'),
     ref_code: z.string().optional(),
     payment_method: z.enum(['zelle', 'stripe']),
     agreed_accuracy: z.literal(true, { errorMap: () => ({ message: 'Required' }) }),
@@ -335,7 +338,7 @@ function UrgencyBanner({ available }: { available: number | null }) {
   const pct = Math.min(100, (sold / 1000) * 100)
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-[#FF4E00] text-white text-xs font-bold uppercase tracking-wider">
+    <div className="fixed top-0 left-0 right-0 z-50 text-black text-xs font-bold uppercase tracking-wider" style={{ background: 'linear-gradient(90deg, #8B6914, #D4AF37, #F0D060, #D4AF37, #8B6914)', backgroundSize: '200% auto', animation: 'shimmer 3s linear infinite' }}>
       <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-6 py-2 px-4 text-center">
         <span className="flex items-center gap-2 font-black">
           🔥 $1,000/DAY × 90 DAYS STARTS IN
@@ -413,10 +416,10 @@ function Hero({ available }: { available: number | null }) {
             <div className="text-white font-black text-sm mt-0.5" style={{ fontFamily: 'var(--font-dm-mono)' }}>$20,000</div>
             <div className="text-white/40 text-[10px] mt-0.5">Cash</div>
           </div>
-          <div className="bg-[#FF4E00] px-4 py-2.5 text-center">
-            <div className="text-white/80 font-black text-[10px] uppercase tracking-wider">Daily Prize</div>
-            <div className="text-white font-black text-sm mt-0.5" style={{ fontFamily: 'var(--font-dm-mono)' }}>$1,000 × 90 Days</div>
-            <div className="text-white/70 text-[10px] mt-0.5">Starts Jul 31</div>
+          <div className="px-4 py-2.5 text-center" style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37)' }}>
+            <div className="text-black/70 font-black text-[10px] uppercase tracking-wider">Daily Prize</div>
+            <div className="text-black font-black text-sm mt-0.5" style={{ fontFamily: 'var(--font-dm-mono)' }}>$1,000 × 90 Days</div>
+            <div className="text-black/60 text-[10px] mt-0.5">Starts Jul 31</div>
           </div>
         </div>
 
@@ -448,23 +451,30 @@ function Hero({ available }: { available: number | null }) {
           ))}
         </div>
 
-        {/* Stats row */}
-        <div className="flex items-center justify-center gap-6 mb-10">
-          <div className="text-center">
-            <div className="font-black text-[var(--gold)] text-xl" style={{ fontFamily: 'var(--font-dm-mono)' }}>{sold}</div>
-            <div className="text-white/35 text-[10px] uppercase tracking-widest">Sold</div>
+        {/* Ticket progress bar */}
+        <div className="w-full max-w-xl mx-auto mb-10">
+          <div className="flex justify-between items-end mb-2">
+            <span className="text-white/40 text-[10px] uppercase tracking-widest">Tickets Sold</span>
+            <span className="font-black tabular-nums" style={{ fontFamily: 'var(--font-dm-mono)', color: 'var(--gold)', fontSize: 'clamp(1rem, 3vw, 1.4rem)' }}>
+              {sold} <span className="text-white/30 text-xs font-normal">/ 1,000</span>
+            </span>
           </div>
-          <div className="w-px h-10 bg-white/15" />
-          <div className="text-center">
-            <div className="font-black text-white text-xl" style={{ fontFamily: 'var(--font-dm-mono)' }}>
-              {available !== null ? available : <GoldSpinner size={20} />}
-            </div>
-            <div className="text-white/35 text-[10px] uppercase tracking-widest">Remaining</div>
+          <div className="h-3 bg-white/10 rounded-full overflow-hidden border border-white/10">
+            <div
+              className="h-full rounded-full transition-all duration-1000"
+              style={{
+                width: `${Math.max(2, (sold / 1000) * 100)}%`,
+                background: 'linear-gradient(90deg, #8B6914, #D4AF37, #F0D060)',
+                boxShadow: '0 0 12px rgba(212,175,55,0.6)',
+              }}
+            />
           </div>
-          <div className="w-px h-10 bg-white/15" />
-          <div className="text-center">
-            <div className="font-black text-white text-xl" style={{ fontFamily: 'var(--font-dm-mono)' }}>$500</div>
-            <div className="text-white/35 text-[10px] uppercase tracking-widest">Per Ticket</div>
+          <div className="flex justify-between mt-1.5">
+            <span className="text-white/25 text-[9px] uppercase tracking-widest">0</span>
+            <span className="text-white/40 text-[10px] font-bold">
+              {available !== null ? available : <GoldSpinner size={12} />} remaining
+            </span>
+            <span className="text-white/25 text-[9px] uppercase tracking-widest">1,000</span>
           </div>
         </div>
 
@@ -881,6 +891,79 @@ function TeaserGrid({ tickets }: { tickets: TicketGridItem[] }) {
 
 // ─── BUY FORM ─────────────────────────────────────────────────────────────────
 
+// ─── WHATSAPP PROMO POPUP ─────────────────────────────────────────────────────
+
+const WA_GROUP = 'https://chat.whatsapp.com/XXXXXXXXXXXXXXXXX' // ← replace with real link
+
+function WhatsAppPromo({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-[var(--black-card)] border-2 border-[var(--gold)] max-w-sm w-full p-8 text-center shadow-2xl">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-4 text-white/40 hover:text-white text-2xl font-light leading-none"
+          aria-label="Close"
+        >
+          ×
+        </button>
+
+        <div className="w-14 h-14 mx-auto mb-5 flex items-center justify-center rounded-full" style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37)' }}>
+          <span className="text-black font-black text-2xl">$</span>
+        </div>
+
+        <p className="text-[var(--gold)] text-[10px] font-black uppercase tracking-[0.35em] mb-2">Daily Giveaway</p>
+        <h2 className="font-black uppercase text-white leading-tight mb-3" style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.4rem, 5vw, 1.9rem)' }}>
+          Don&apos;t Miss Out on<br /><span style={{ color: 'var(--gold)' }}>$1,000 Every Day</span>
+        </h2>
+        <p className="text-white/50 text-sm mb-6 leading-relaxed">
+          Join 1,000 exclusive members for a chance to win a <strong className="text-white">2026 Toyota 4Runner Trailhunter</strong> or $70,000 cash — plus a daily $1,000 giveaway for 90 days.
+        </p>
+
+        <a
+          href="/#buy-form"
+          onClick={onClose}
+          className="flex items-center justify-center w-full py-4 font-black uppercase tracking-widest text-black text-sm mb-3 transition-transform hover:scale-105"
+          style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37, #F0D060, #D4AF37)' }}
+        >
+          Get My Ticket — $500
+        </a>
+
+        <a
+          href={WA_GROUP}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-2.5 w-full py-3 border-2 border-[#25D366] text-[#25D366] font-black uppercase tracking-widest text-xs hover:bg-[#25D366]/10 transition-colors"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden>
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          Undecided? Join Our WhatsApp Group
+        </a>
+      </div>
+    </div>
+  )
+}
+
+// ─── FLOATING WHATSAPP BUTTON ─────────────────────────────────────────────────
+
+function FloatingWhatsApp() {
+  return (
+    <a
+      href={WA_GROUP}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Join our WhatsApp group"
+      className="fixed bottom-6 right-6 z-[150] flex items-center justify-center w-14 h-14 rounded-full shadow-2xl transition-transform hover:scale-110 active:scale-95"
+      style={{ background: '#25D366', boxShadow: '0 4px 24px rgba(37,211,102,0.5)' }}
+    >
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="white" aria-hidden>
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+    </a>
+  )
+}
+
 function BuyForm() {
   const [paymentMethod, setPaymentMethod] = useState<'zelle' | 'stripe'>('zelle')
   const [signature, setSignature] = useState('')
@@ -997,6 +1080,21 @@ function BuyForm() {
           </Field>
         </div>
 
+        {/* City & State */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="City" error={errors.city?.message} required>
+            <input {...register('city')} placeholder="Los Angeles" className={inp} />
+          </Field>
+          <Field label="State" error={errors.state?.message} required>
+            <input {...register('state')} placeholder="California" className={inp} />
+          </Field>
+        </div>
+
+        {/* Nationality */}
+        <Field label="Nationality" error={errors.nationality?.message} required>
+          <input {...register('nationality')} placeholder="American" className={inp} />
+        </Field>
+
         {/* Referral */}
         <Field label="Referral Code" error={undefined}>
           <input {...register('ref_code')} placeholder="Auto-filled from invite link" className={inp} />
@@ -1046,7 +1144,7 @@ function BuyForm() {
                 <span className="text-white font-bold">Your full name</span>
               </p>
             </div>
-            <div className="bg-[#FF4E00]/10 border border-[#FF4E00]/40 p-3 text-xs text-[#FF4E00] font-bold uppercase tracking-wider">
+            <div className="bg-[var(--gold)]/10 border border-[var(--gold)]/40 p-3 text-xs text-[var(--gold)] font-bold uppercase tracking-wider">
               ⚠️ Ticket number assigned ONLY after payment is manually verified (up to 24h)
             </div>
             <div>
@@ -1138,6 +1236,7 @@ function BuyForm() {
 export default function HomePage() {
   const [available, setAvailable] = useState<number | null>(null)
   const [tickets, setTickets] = useState<TicketGridItem[]>([])
+  const [showPromo, setShowPromo] = useState(false)
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -1156,8 +1255,20 @@ export default function HomePage() {
     fetchTickets()
   }, [])
 
+  // Show promo popup after 3 seconds (only once per session)
+  useEffect(() => {
+    if (sessionStorage.getItem('promoSeen')) return
+    const id = setTimeout(() => {
+      setShowPromo(true)
+      sessionStorage.setItem('promoSeen', '1')
+    }, 3000)
+    return () => clearTimeout(id)
+  }, [])
+
   return (
     <div className="bg-[#0A0A0A]">
+      {showPromo && <WhatsAppPromo onClose={() => setShowPromo(false)} />}
+      <FloatingWhatsApp />
       <UrgencyBanner available={available} />
       <div className="h-[52px] sm:h-[36px]" />
       <SiteHeader />
