@@ -23,6 +23,7 @@ const purchaseSchema = z
     city: z.string().min(1, 'Required'),
     state: z.string().min(1, 'Required'),
     nationality: z.string().min(1, 'Required'),
+    gender: z.enum(['male', 'female', 'other', 'prefer_not'], { errorMap: () => ({ message: 'Required' }) }),
     ref_code: z.string().optional(),
     payment_method: z.enum(['zelle', 'stripe']),
     agreed_accuracy: z.literal(true, { errorMap: () => ({ message: 'Required' }) }),
@@ -548,17 +549,19 @@ function PrizesSection() {
           {/* 1st Prize */}
           <div className="md:col-span-3 border border-[var(--gold)] bg-[var(--black-card)] overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-2">
-              {/* Image slot */}
-              <div
-                className="relative min-h-[260px] flex items-center justify-center"
-                style={{ background: 'radial-gradient(ellipse at center, #1a1200, #0a0a0a)' }}
-              >
-                <div className="absolute top-4 left-4 bg-[var(--gold)] text-black text-[10px] font-black uppercase tracking-widest px-3 py-1.5">
+              {/* Image */}
+              <div className="relative min-h-[320px] lg:min-h-[400px] overflow-hidden">
+                <div className="absolute top-4 left-4 z-10 bg-[var(--gold)] text-black text-[10px] font-black uppercase tracking-widest px-3 py-1.5">
                   1st Prize
                 </div>
-                <div className="w-4/5 h-44 bg-[var(--black-border)] flex items-center justify-center border border-[#2a2a2a]">
-                  <span className="text-white/30 text-xs uppercase tracking-widest">Vehicle Photo</span>
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/assets/4runner-golden-gate.png"
+                  alt="2026 Toyota 4Runner Trailhunter at the Golden Gate Bridge"
+                  className="w-full h-full object-cover object-center"
+                  style={{ minHeight: 320 }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[var(--black-card)]/60 pointer-events-none hidden lg:block" />
               </div>
 
               {/* Info */}
@@ -891,6 +894,115 @@ function TeaserGrid({ tickets }: { tickets: TicketGridItem[] }) {
 
 // ─── BUY FORM ─────────────────────────────────────────────────────────────────
 
+// ─── CHECK YOUR NUMBER ────────────────────────────────────────────────────────
+
+// Winning numbers — set these when the draw happens (empty = draw not yet held)
+const WINNING_NUMBERS: Record<string, { prize: string; date: string }> = {
+  // '042': { prize: '2026 Toyota 4Runner Trailhunter', date: 'TBD' },
+  // '317': { prize: '$20,000 Cash', date: 'TBD' },
+}
+
+function CheckWinner() {
+  const [query, setQuery] = useState('')
+  const [result, setResult] = useState<'idle' | 'won' | 'not_won' | 'pending'>('idle')
+  const [prizeInfo, setPrizeInfo] = useState<{ prize: string; date: string } | null>(null)
+
+  const drawHeld = Object.keys(WINNING_NUMBERS).length > 0
+
+  const handleCheck = () => {
+    const normalized = query.trim().replace(/^#/, '').padStart(3, '0')
+    if (!normalized.match(/^\d{3}$/)) return
+    if (!drawHeld) { setResult('pending'); return }
+    const match = WINNING_NUMBERS[normalized]
+    if (match) { setPrizeInfo(match); setResult('won') }
+    else setResult('not_won')
+  }
+
+  return (
+    <section id="check-winner" className="py-20 px-4" style={{ background: 'radial-gradient(ellipse at center, #0f0c00 0%, #0A0A0A 70%)' }}>
+      <div className="max-w-xl mx-auto text-center">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
+          <span className="text-[var(--gold)] text-xs uppercase tracking-[0.4em] font-bold whitespace-nowrap">Winning Number</span>
+          <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
+        </div>
+
+        <h2
+          className="font-black uppercase text-white leading-tight mb-3"
+          style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.8rem, 5vw, 3rem)' }}
+        >
+          Did You Win?
+        </h2>
+        <p className="text-white/40 text-sm mb-10 leading-relaxed">
+          {drawHeld
+            ? 'Enter your 3-digit ticket number below to check if it was drawn.'
+            : 'The draw has not been held yet. Check back once all 1,000 tickets are sold.'}
+        </p>
+
+        <div className="bg-[var(--black-card)] border border-[var(--black-border)] p-8">
+          <div className="flex gap-3 mb-5">
+            <div className="relative flex-1">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 font-black text-lg">#</span>
+              <input
+                type="text"
+                maxLength={3}
+                value={query}
+                onChange={(e) => { setQuery(e.target.value.replace(/\D/g, '')); setResult('idle') }}
+                onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
+                placeholder="000"
+                className="w-full bg-[var(--black)] border border-[var(--black-border)] pl-9 pr-4 py-4 text-center text-2xl font-black text-white tracking-[0.3em] focus:outline-none focus:border-[var(--gold)] transition-colors"
+                style={{ fontFamily: 'var(--font-dm-mono)' }}
+              />
+            </div>
+            <button
+              onClick={handleCheck}
+              className="px-8 py-4 font-black uppercase tracking-widest text-black text-sm transition-all hover:scale-105 active:scale-95 shrink-0"
+              style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37, #F0D060, #D4AF37)' }}
+            >
+              Check
+            </button>
+          </div>
+
+          {/* Result */}
+          {result === 'pending' && (
+            <div className="border border-[var(--gold)]/40 bg-[var(--gold)]/5 p-5 text-center">
+              <div className="text-3xl mb-2">⏳</div>
+              <p className="text-[var(--gold)] font-black uppercase tracking-wider text-sm">Draw Not Yet Held</p>
+              <p className="text-white/40 text-xs mt-1">Check back when ticket #999 is confirmed sold.</p>
+            </div>
+          )}
+
+          {result === 'won' && prizeInfo && (
+            <div className="border-2 border-[var(--gold)] bg-[var(--gold)]/10 p-6 text-center">
+              <div className="text-4xl mb-3">🏆</div>
+              <p className="text-[var(--gold)] font-black uppercase tracking-wider text-sm mb-1">Congratulations — You Won!</p>
+              <p className="text-white font-black text-lg mb-1">{prizeInfo.prize}</p>
+              <p className="text-white/40 text-xs">Draw date: {prizeInfo.date}</p>
+              <p className="text-white/50 text-xs mt-3 leading-relaxed">
+                Our team will contact you at the email on file within 48 hours with claim instructions.
+              </p>
+            </div>
+          )}
+
+          {result === 'not_won' && (
+            <div className="border border-[var(--black-border)] bg-[var(--black)] p-5 text-center">
+              <div className="text-3xl mb-2">🎟️</div>
+              <p className="text-white/60 font-black uppercase tracking-wider text-sm">Not a Winning Number</p>
+              <p className="text-white/30 text-xs mt-1">Thank you for participating. Follow us for upcoming raffles.</p>
+            </div>
+          )}
+
+          {!drawHeld && (
+            <p className="text-white/20 text-[10px] uppercase tracking-widest mt-4">
+              Winning numbers will be posted here immediately after the draw
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 // ─── WHATSAPP PROMO POPUP ─────────────────────────────────────────────────────
 
 const WA_GROUP = 'https://chat.whatsapp.com/XXXXXXXXXXXXXXXXX' // ← replace with real link
@@ -1095,6 +1207,17 @@ function BuyForm() {
           <input {...register('nationality')} placeholder="American" className={inp} />
         </Field>
 
+        {/* Gender */}
+        <Field label="Gender" error={errors.gender?.message} required>
+          <select {...register('gender')} className={inp} defaultValue="">
+            <option value="" disabled>Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+            <option value="prefer_not">Prefer not to say</option>
+          </select>
+        </Field>
+
         {/* Referral */}
         <Field label="Referral Code" error={undefined}>
           <input {...register('ref_code')} placeholder="Auto-filled from invite link" className={inp} />
@@ -1278,6 +1401,7 @@ export default function HomePage() {
       <PrizesSection />
       <HowItWorks />
       <WinnersSection />
+      <CheckWinner />
 
       {/* Buy Ticket */}
       <section id="buy-form" className="py-20 px-4" style={{ background: '#0d0d0d' }}>

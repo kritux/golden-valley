@@ -15,6 +15,7 @@ const intentSchema = z.object({
   city: z.string().min(1).max(100).trim(),
   state: z.string().min(1).max(100).trim(),
   nationality: z.string().min(1).max(100).trim(),
+  gender: z.enum(['male', 'female', 'other', 'prefer_not']),
   ref_code: z.string().max(20).trim().optional(),
   payment_method: z.enum(['zelle', 'stripe']),
   signature_data: z.string().min(10), // base64 PNG
