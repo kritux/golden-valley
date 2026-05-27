@@ -1,6 +1,11 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Defer instantiation so Next.js build-time evaluation never runs the constructor
+function getResend() {
+  if (!process.env.RESEND_API_KEY) throw new Error('Missing RESEND_API_KEY')
+  return new Resend(process.env.RESEND_API_KEY)
+}
+
 const FROM = process.env.RESEND_FROM_EMAIL ?? 'tickets@goldenvalleymembers.com'
 
 interface ReceiptEmailData {
@@ -29,7 +34,7 @@ interface SellerWelcomeEmailData {
 }
 
 export async function sendReceiptEmail(data: ReceiptEmailData) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to: data.to,
     subject: `Your Golden Valley Ticket #${data.ticketNumber} is Confirmed!`,
@@ -115,7 +120,7 @@ export async function sendReceiptEmail(data: ReceiptEmailData) {
 }
 
 export async function sendPendingZelleEmail(data: PendingZelleEmailData) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to: data.to,
     subject: 'Golden Valley — Payment Receipt Received (Under Review)',
@@ -153,7 +158,7 @@ export async function sendPendingZelleEmail(data: PendingZelleEmailData) {
 }
 
 export async function sendReminder24hEmail(data: Reminder24hEmailData) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to: data.to,
     subject: 'Golden Valley — Your ticket is still waiting for payment',
@@ -190,7 +195,7 @@ export async function sendReminder24hEmail(data: Reminder24hEmailData) {
 }
 
 export async function sendSellerWelcomeEmail(data: SellerWelcomeEmailData) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to: data.to,
     subject: 'Welcome to the Golden Valley Members Seller Program',
