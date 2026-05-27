@@ -550,7 +550,7 @@ function PrizesSection() {
           <div className="md:col-span-3 border border-[var(--gold)] bg-[var(--black-card)] overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-2">
               {/* Image */}
-              <div className="relative overflow-hidden" style={{ minHeight: 320 }}>
+              <div className="relative overflow-hidden" style={{ minHeight: 260 }}>
                 <div className="absolute top-4 left-4 z-10 bg-[var(--gold)] text-black text-[10px] font-black uppercase tracking-widest px-3 py-1.5">
                   1st Prize
                 </div>
@@ -558,8 +558,8 @@ function PrizesSection() {
                 <img
                   src="/assets/4runner-golden-gate.png"
                   alt="2026 Toyota 4Runner Trailhunter at the Golden Gate Bridge"
-                  className="w-full h-full object-cover"
-                  style={{ height: '100%', minHeight: 320, objectPosition: 'bottom center' }}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ objectPosition: 'center 55%' }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[var(--black-card)]/40 pointer-events-none hidden lg:block" />
               </div>
