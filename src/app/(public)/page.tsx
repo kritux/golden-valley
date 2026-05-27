@@ -400,8 +400,7 @@ function Hero({ available }: { available: number | null }) {
         </h1>
 
         <p className="text-white/55 text-base md:text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
-          1,000 exclusive tickets. One draw. Three prize tiers totaling over{' '}
-          <span className="text-[var(--gold)] font-bold">$180,000</span> in cash and prizes.
+          1,000 exclusive tickets. One draw. Three prize tiers — cash, vehicle, and daily giveaway.
           The draw happens when the last ticket is sold.
         </p>
 
@@ -507,6 +506,104 @@ function Hero({ available }: { available: number | null }) {
 
 // ─── TRUST STRIP ──────────────────────────────────────────────────────────────
 
+// ─── FUNDING PROGRESS ────────────────────────────────────────────────────────
+
+const GOAL = 500_000       // $500,000 = 1,000 tickets
+const MILESTONE = 300_000  // $300,000 = 600 tickets → daily $1K starts
+
+function FundingProgress({ available }: { available: number | null }) {
+  const sold = available !== null ? 1000 - available : 0
+  const raised = sold * 500
+  const pctGoal = Math.min(100, (raised / GOAL) * 100)
+  const pctMilestone = Math.min(100, (raised / MILESTONE) * 100)
+  const milestoneReached = raised >= MILESTONE
+
+  const fmt = (n: number) =>
+    n >= 1000 ? `$${(n / 1000).toFixed(0)}K` : `$${n}`
+
+  return (
+    <section className="py-16 px-4 border-y border-[var(--black-border)]" style={{ background: '#0d0d0d' }}>
+      <div className="max-w-3xl mx-auto">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
+          <span className="text-[var(--gold)] text-xs uppercase tracking-[0.4em] font-bold whitespace-nowrap">Campaign Progress</span>
+          <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
+        </div>
+
+        {/* Raised amount */}
+        <div className="flex items-end justify-between mb-3">
+          <div>
+            <p className="text-white/35 text-[10px] uppercase tracking-widest mb-1">Total Raised</p>
+            <p className="font-black text-[var(--gold)]" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(1.6rem, 4vw, 2.4rem)' }}>
+              {fmt(raised)}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-white/35 text-[10px] uppercase tracking-widest mb-1">Campaign Goal</p>
+            <p className="font-black text-white/50" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(1rem, 2.5vw, 1.4rem)' }}>
+              {fmt(GOAL)}
+            </p>
+          </div>
+        </div>
+
+        {/* Main progress bar */}
+        <div className="relative h-5 bg-white/5 rounded-full overflow-hidden border border-white/10 mb-2">
+          {/* Milestone marker at 60% (300K/500K) */}
+          <div
+            className="absolute top-0 bottom-0 w-0.5 bg-white/40 z-10"
+            style={{ left: `${(MILESTONE / GOAL) * 100}%` }}
+          />
+          {/* Fill */}
+          <div
+            className="h-full rounded-full transition-all duration-1000"
+            style={{
+              width: `${Math.max(1, pctGoal)}%`,
+              background: milestoneReached
+                ? 'linear-gradient(90deg, #8B6914, #D4AF37, #F0D060)'
+                : 'linear-gradient(90deg, #8B6914, #D4AF37)',
+              boxShadow: '0 0 10px rgba(212,175,55,0.5)',
+            }}
+          />
+        </div>
+
+        {/* Milestone label */}
+        <div className="relative mb-6" style={{ paddingLeft: `${(MILESTONE / GOAL) * 100}%` }}>
+          <div className="absolute flex flex-col items-center" style={{ left: `${(MILESTONE / GOAL) * 100}%`, transform: 'translateX(-50%)' }}>
+            <div className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-sm whitespace-nowrap ${milestoneReached ? 'bg-[var(--gold)] text-black' : 'bg-white/10 text-white/40'}`}>
+              {milestoneReached ? '✓ Daily $1K Unlocked' : `${fmt(MILESTONE)} — Daily $1K Starts`}
+            </div>
+          </div>
+          {/* spacer for the label height */}
+          <div className="h-6" />
+        </div>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-[var(--black-card)] border border-[var(--black-border)] p-4 text-center">
+            <p className="text-white/30 text-[9px] uppercase tracking-widest mb-1">Tickets Sold</p>
+            <p className="text-[var(--gold)] font-black text-lg" style={{ fontFamily: 'var(--font-dm-mono)' }}>{sold}</p>
+            <p className="text-white/20 text-[9px]">of 1,000</p>
+          </div>
+          <div className="bg-[var(--black-card)] border border-[var(--black-border)] p-4 text-center">
+            <p className="text-white/30 text-[9px] uppercase tracking-widest mb-1">To Milestone</p>
+            <p className="text-white font-black text-lg" style={{ fontFamily: 'var(--font-dm-mono)' }}>
+              {milestoneReached ? '✓' : fmt(Math.max(0, MILESTONE - raised))}
+            </p>
+            <p className="text-white/20 text-[9px]">{milestoneReached ? 'Reached' : 'remaining'}</p>
+          </div>
+          <div className="bg-[var(--black-card)] border border-[var(--black-border)] p-4 text-center">
+            <p className="text-white/30 text-[9px] uppercase tracking-widest mb-1">Progress</p>
+            <p className="text-white font-black text-lg" style={{ fontFamily: 'var(--font-dm-mono)' }}>{pctMilestone.toFixed(0)}%</p>
+            <p className="text-white/20 text-[9px]">to milestone</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── TRUST STRIP ──────────────────────────────────────────────────────────────
+
 function TrustStrip() {
   return (
     <div className="bg-[var(--gold)] py-3.5 px-4 overflow-hidden">
@@ -540,7 +637,7 @@ function PrizesSection() {
             Three Ways to Win
           </h2>
           <p className="text-white/40 mt-3 text-sm max-w-md mx-auto">
-            One draw. Three prize tiers. Over $180,000 in total value.
+            One draw. Three prize tiers. Life-changing prizes.
           </p>
         </div>
 
@@ -641,11 +738,10 @@ function PrizesSection() {
               <p className="text-black/70 text-base font-bold mt-1">for 90 consecutive days</p>
             </div>
             <p className="text-black/60 text-sm leading-relaxed">
-              When the countdown hits zero, we start giving away $1,000 every single day for 90 days.
-              Total daily prize pool: <span className="font-black text-black">$90,000</span>.
+              When the funding milestone is reached, we start giving away $1,000 every single day for 90 consecutive days.
             </p>
             <div className="flex items-center gap-3 mt-auto">
-              {[['Duration','90 Days'],['Daily Amount','$1,000'],['Total Pool','$90,000']].map(([label, val]) => (
+              {[['Duration','90 Days'],['Daily Amount','$1,000'],['Starts At','Milestone']].map(([label, val]) => (
                 <div key={label} className="bg-black/15 px-4 py-2 text-center">
                   <p className="text-black/50 text-[9px] uppercase tracking-wider">{label}</p>
                   <p className="text-black font-black text-sm">{val}</p>
@@ -1529,6 +1625,7 @@ export default function HomePage() {
 
       <Hero available={available} />
       <TrustStrip />
+      <FundingProgress available={available} />
       <PrizesSection />
       <HowItWorks />
       <WinnersSection />
