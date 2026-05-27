@@ -550,7 +550,7 @@ function PrizesSection() {
           <div className="md:col-span-3 border border-[var(--gold)] bg-[var(--black-card)] overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-2">
               {/* Image */}
-              <div className="relative min-h-[320px] lg:min-h-[400px] overflow-hidden">
+              <div className="relative overflow-hidden" style={{ minHeight: 260, maxHeight: 360 }}>
                 <div className="absolute top-4 left-4 z-10 bg-[var(--gold)] text-black text-[10px] font-black uppercase tracking-widest px-3 py-1.5">
                   1st Prize
                 </div>
@@ -558,10 +558,10 @@ function PrizesSection() {
                 <img
                   src="/assets/4runner-golden-gate.png"
                   alt="2026 Toyota 4Runner Trailhunter at the Golden Gate Bridge"
-                  className="w-full h-full object-cover object-center"
-                  style={{ minHeight: 320 }}
+                  className="w-full h-full object-cover"
+                  style={{ height: 320, objectPosition: 'center 30%' }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[var(--black-card)]/60 pointer-events-none hidden lg:block" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[var(--black-card)]/50 pointer-events-none hidden lg:block" />
               </div>
 
               {/* Info */}
@@ -626,56 +626,64 @@ function PrizesSection() {
           </div>
 
           {/* 3rd — Daily */}
-          <div className="md:col-span-2 bg-[#FF4E00] p-8 flex flex-col gap-4">
+          <div className="md:col-span-2 p-8 flex flex-col gap-4" style={{ background: 'linear-gradient(135deg, #8B6914 0%, #D4AF37 60%, #F0D060 100%)' }}>
             <div className="flex items-start justify-between">
-              <div className="bg-black/20 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1">
+              <div className="bg-black/20 text-black text-[10px] font-black uppercase tracking-widest px-3 py-1">
                 Daily Giveaway
               </div>
               <span className="text-4xl">📅</span>
             </div>
             <div>
-              <p className="text-white/70 text-xs uppercase tracking-widest mb-1">Starting Jul 31, 2026</p>
-              <p className="font-black text-white leading-none" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
-                $1,000<span className="text-white/70 text-2xl">/day</span>
+              <p className="text-black/60 text-xs uppercase tracking-widest mb-1">Starting Jul 31, 2026</p>
+              <p className="font-black text-black leading-none" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
+                $1,000<span className="text-black/60 text-2xl">/day</span>
               </p>
-              <p className="text-white/80 text-base font-bold mt-1">for 90 consecutive days</p>
+              <p className="text-black/70 text-base font-bold mt-1">for 90 consecutive days</p>
             </div>
-            <p className="text-white/70 text-sm leading-relaxed">
+            <p className="text-black/60 text-sm leading-relaxed">
               When the countdown hits zero, we start giving away $1,000 every single day for 90 days.
-              Total daily prize pool: <span className="font-black text-white">$90,000</span>.
+              Total daily prize pool: <span className="font-black text-black">$90,000</span>.
             </p>
             <div className="flex items-center gap-3 mt-auto">
-              <div className="bg-black/20 px-4 py-2 text-center">
-                <p className="text-white/60 text-[9px] uppercase tracking-wider">Duration</p>
-                <p className="text-white font-black text-sm">90 Days</p>
-              </div>
-              <div className="bg-black/20 px-4 py-2 text-center">
-                <p className="text-white/60 text-[9px] uppercase tracking-wider">Daily Amount</p>
-                <p className="text-white font-black text-sm">$1,000</p>
-              </div>
-              <div className="bg-black/20 px-4 py-2 text-center">
-                <p className="text-white/60 text-[9px] uppercase tracking-wider">Total Pool</p>
-                <p className="text-white font-black text-sm">$90,000</p>
-              </div>
+              {[['Duration','90 Days'],['Daily Amount','$1,000'],['Total Pool','$90,000']].map(([label, val]) => (
+                <div key={label} className="bg-black/15 px-4 py-2 text-center">
+                  <p className="text-black/50 text-[9px] uppercase tracking-wider">{label}</p>
+                  <p className="text-black font-black text-sm">{val}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Total value bar */}
-        <div className="border border-[var(--black-border)] bg-[var(--black-card)] p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <p className="text-white/35 text-[10px] uppercase tracking-widest">Total Prize Value Across All Tiers</p>
-            <p className="text-[var(--gold)] font-black mt-1" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(1.5rem, 4vw, 2.5rem)' }}>
-              $180,000+
-            </p>
+        {/* Surprise Prizes */}
+        <div className="mt-6">
+          <div className="flex items-center gap-4 mb-5">
+            <div className="h-px flex-1 bg-[var(--gold)] opacity-20" />
+            <span className="text-[var(--gold)] text-xs uppercase tracking-[0.4em] font-bold whitespace-nowrap">✦ Surprise Prizes</span>
+            <div className="h-px flex-1 bg-[var(--gold)] opacity-20" />
           </div>
-          <button
-            onClick={() => document.getElementById('buy-form')?.scrollIntoView({ behavior: 'smooth' })}
-            className="font-black uppercase tracking-widest text-black px-8 py-4 text-sm transition-all hover:opacity-90 shrink-0"
-            style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A)' }}
-          >
-            Enter for $500 →
-          </button>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {[
+              { icon: '🎁', label: 'Mystery Bonus', desc: 'Randomly awarded to active ticket holders throughout the campaign — announced live on social media.' },
+              { icon: '⚡', label: 'Flash Giveaways', desc: 'Unannounced same-day drawings dropped via our WhatsApp group. Follow closely so you never miss one.' },
+              { icon: '🌟', label: 'Loyalty Reward', desc: 'Special recognition prize for early participants. Details revealed closer to draw day.' },
+            ].map(({ icon, label, desc }) => (
+              <div key={label} className="bg-[var(--black-card)] border border-[var(--gold)]/20 p-5 flex flex-col gap-2 hover:border-[var(--gold)]/50 transition-colors">
+                <span className="text-2xl">{icon}</span>
+                <p className="text-[var(--gold)] font-black uppercase tracking-wider text-xs">{label}</p>
+                <p className="text-white/40 text-xs leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 flex justify-center">
+            <button
+              onClick={() => document.getElementById('buy-form')?.scrollIntoView({ behavior: 'smooth' })}
+              className="font-black uppercase tracking-widest text-black px-10 py-4 text-sm transition-all hover:scale-105 active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37, #F0D060, #D4AF37)' }}
+            >
+              Enter for $500 →
+            </button>
+          </div>
         </div>
       </div>
     </section>
