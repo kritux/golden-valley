@@ -902,6 +902,129 @@ function TeaserGrid({ tickets }: { tickets: TicketGridItem[] }) {
 
 // ─── BUY FORM ─────────────────────────────────────────────────────────────────
 
+// ─── DAILY NUMBERS ────────────────────────────────────────────────────────────
+
+interface DrawResult {
+  drawNumber: number
+  date: string
+  numbers: [string, string, string]
+}
+
+function DailyNumbers() {
+  const [draws, setDraws] = useState<DrawResult[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/lottery/daily3')
+      .then((r) => r.json())
+      .then((data) => { setDraws(data as DrawResult[]); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const today = draws[0]
+  const history = draws.slice(1)
+
+  const fmt = (iso: string) => {
+    const d = new Date(iso)
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  }
+
+  return (
+    <section className="py-20 px-4" style={{ background: '#0d0d0d' }}>
+      <div className="max-w-3xl mx-auto">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
+          <span className="text-[var(--gold)] text-xs uppercase tracking-[0.4em] font-bold whitespace-nowrap">Lucky Numbers</span>
+          <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
+        </div>
+
+        <div className="text-center mb-10">
+          <h2
+            className="font-black uppercase text-white leading-tight mb-2"
+            style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.8rem, 5vw, 3rem)' }}
+          >
+            Daily Reference Numbers
+          </h2>
+          <p className="text-white/35 text-sm">Updated twice daily · Used to verify daily $1,000 giveaway draws</p>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-12"><GoldSpinner size={32} /></div>
+        ) : (
+          <>
+            {/* Today's numbers — hero display */}
+            {today && (
+              <div
+                className="border-2 border-[var(--gold)] bg-[var(--black-card)] p-8 mb-6 text-center"
+                style={{ background: 'radial-gradient(ellipse at top, #1a1000, #1a1a1a)' }}
+              >
+                <p className="text-[var(--gold)] text-[10px] font-black uppercase tracking-[0.4em] mb-5">
+                  Latest Draw · {fmt(today.date)}
+                </p>
+                <div className="flex items-center justify-center gap-4 mb-4">
+                  {today.numbers.map((n, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-center font-black text-black rounded-sm"
+                      style={{
+                        width: 72, height: 72,
+                        fontSize: 32,
+                        fontFamily: 'var(--font-dm-mono)',
+                        background: 'linear-gradient(135deg, #8B6914, #D4AF37, #F0D060)',
+                        boxShadow: '0 0 20px rgba(212,175,55,0.4)',
+                      }}
+                    >
+                      {n}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-white/25 text-[10px] uppercase tracking-widest">
+                  Draw #{today.drawNumber}
+                </p>
+              </div>
+            )}
+
+            {/* History table */}
+            {history.length > 0 && (
+              <div className="border border-[var(--black-border)] overflow-hidden">
+                <div className="grid grid-cols-3 border-b border-[var(--black-border)] bg-[var(--black-card)]">
+                  {['Date', 'Numbers', 'Draw #'].map((h) => (
+                    <div key={h} className="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-white/25">{h}</div>
+                  ))}
+                </div>
+                {history.map((d, i) => (
+                  <div
+                    key={d.drawNumber}
+                    className={`grid grid-cols-3 items-center border-b border-[var(--black-border)] last:border-b-0 ${i % 2 === 0 ? 'bg-[var(--black-card)]' : 'bg-[#0e0e0e]'}`}
+                  >
+                    <div className="px-4 py-3 text-white/50 text-xs">{fmt(d.date)}</div>
+                    <div className="px-4 py-3 flex gap-2">
+                      {d.numbers.map((n, j) => (
+                        <span
+                          key={j}
+                          className="inline-flex items-center justify-center w-7 h-7 text-xs font-black text-black rounded-sm"
+                          style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37)' }}
+                        >
+                          {n}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="px-4 py-3 text-white/25 text-xs font-mono">#{d.drawNumber}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!loading && draws.length === 0 && (
+              <p className="text-center text-white/30 text-sm py-8">Numbers unavailable — check back shortly.</p>
+            )}
+          </>
+        )}
+      </div>
+    </section>
+  )
+}
+
 // ─── CHECK YOUR NUMBER ────────────────────────────────────────────────────────
 
 // Winning numbers — set these when the draw happens (empty = draw not yet held)
@@ -1409,6 +1532,7 @@ export default function HomePage() {
       <PrizesSection />
       <HowItWorks />
       <WinnersSection />
+      <DailyNumbers />
       <CheckWinner />
 
       {/* Buy Ticket */}
