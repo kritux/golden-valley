@@ -1,0 +1,162 @@
+================================================================================
+  GOLDEN VALLEY MEMBERS — CREDENCIALES Y RUTAS
+  Generado: 2026-05-25
+================================================================================
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  VARIABLES DE ENTORNO (.env.local)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  SUPABASE
+  ─────────────────────────────────────────────────────────────────────────────
+  Project Ref:              urkiiwhnlsrrxwqmowzp
+  URL:                      https://urkiiwhnlsrrxwqmowzp.supabase.co
+  Anon Key (pública):       sb_publishable_4XpFQDpLRAtWDUo1PmqalQ_rIpQbBpy
+  Service Role Key:         *** PENDIENTE *** (ver instrucciones abajo)
+
+  Dashboard Supabase:       https://supabase.com/dashboard/project/urkiiwhnlsrrxwqmowzp
+  API Keys:                 https://supabase.com/dashboard/project/urkiiwhnlsrrxwqmowzp/settings/api-keys
+  Auth (usuarios):          https://supabase.com/dashboard/project/urkiiwhnlsrrxwqmowzp/auth/users
+  SQL Editor:               https://supabase.com/dashboard/project/urkiiwhnlsrrxwqmowzp/sql/new
+
+  STRIPE
+  ─────────────────────────────────────────────────────────────────────────────
+  Publishable Key:          pk_test_placeholder   <- reemplazar con clave real
+  Secret Key:               sk_test_placeholder   <- reemplazar con clave real
+  Webhook Secret:           whsec_placeholder     <- reemplazar con clave real
+  Dashboard:                https://dashboard.stripe.com
+
+  RESEND (emails)
+  ─────────────────────────────────────────────────────────────────────────────
+  API Key:                  re_placeholder        <- reemplazar con clave real
+  From Email:               tickets@goldenvalleymembers.com
+  Dashboard:                https://resend.com/api-keys
+
+  ZELLE
+  ─────────────────────────────────────────────────────────────────────────────
+  Numero Zelle:             +1 (555) 000-0000     <- actualizar con numero real
+  Nombre cuenta:            Golden Valley Members LLC
+
+  OTROS
+  ─────────────────────────────────────────────────────────────────────────────
+  Email notificaciones:     growthbizon@gmail.com
+  App URL (local):          http://localhost:3000
+  Cron Secret (dev):        dev-secret-local
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PAGINAS PUBLICAS (sin login)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /                         Landing page principal (compra de tickets)
+  /tickets                  Grilla de 1,000 numeros disponibles (tiempo real)
+  /login                    Login para admin y sellers
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PANEL ADMIN (requiere login con rol = admin)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /admin                    Dashboard principal -- KPIs y resumen general
+  /admin/payments           Tabla de pagos + cola de verificacion Zelle
+  /admin/sellers            Gestion de vendedores
+  /admin/commissions        Registro completo de comisiones
+  /admin/export             Exportar CSVs (pagos, vendedores, tickets)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PANEL SELLER (requiere login con rol = seller)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /seller                   Dashboard vendedor -- mis ventas y estadisticas
+  /seller/clients           Lista de mis clientes
+  /seller/referrals         Mi link de referido + arbol de downline
+  /seller/earnings          Mis comisiones (pagadas y pendientes)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  RUTAS API
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  PUBLICAS (sin autenticacion)
+  ─────────────────────────────────────────────────────────────────────────────
+  POST  /api/purchase/intent              Iniciar compra (crea perfil + ticket pendiente)
+  POST  /api/purchase/zelle-upload        Subir comprobante de pago Zelle
+  POST  /api/webhooks/stripe              Webhook de Stripe (pagos con tarjeta)
+  GET   /api/tickets/available            Estado de los 1,000 numeros (cache 30s)
+
+  ADMIN (requieren rol = admin)
+  ─────────────────────────────────────────────────────────────────────────────
+  GET   /api/admin/stats                  KPIs del dashboard
+  GET   /api/admin/payments               Lista de pagos (con filtros)
+  POST  /api/admin/payments/[id]/verify   Confirmar pago Zelle -> activa ticket
+  POST  /api/admin/payments/[id]/reject   Rechazar pago Zelle
+  GET   /api/admin/sellers                Lista de vendedores con estadisticas
+  POST  /api/admin/sellers                Crear nuevo vendedor (envia email bienvenida)
+  GET   /api/admin/commissions            Registro de comisiones
+  GET   /api/admin/export/payments        Descargar CSV de pagos
+  GET   /api/admin/export/sellers         Descargar CSV de vendedores
+  GET   /api/admin/export/tickets         Descargar CSV de tickets
+
+  SELLER (requieren rol = seller)
+  ─────────────────────────────────────────────────────────────────────────────
+  GET   /api/seller/dashboard             Estadisticas del vendedor logueado
+  GET   /api/seller/tickets               Tickets que este vendedor vendio
+  GET   /api/seller/commissions           Comisiones de este vendedor
+  GET   /api/seller/downline              Vendedores que recluto (max. 2 niveles)
+
+  CRON (ejecutados automaticamente por Vercel)
+  ─────────────────────────────────────────────────────────────────────────────
+  GET   /api/cron/reminders               Envia recordatorios a pagos pendientes (cada hora)
+  GET   /api/cron/draw-check              Verifica si se llego al ticket #1,000 (cada 5 min)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ESTRUCTURA DE COMISIONES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Precio del ticket:        $500
+  ─────────────────────────────────────────────────────────────────────────────
+  Empresa:                  $350  (siempre)
+  Vendedor L1 (quien vende): $100
+  Vendedor L2 (quien recluto al L1): $25
+  Fondo del premio:         $25   (acumulado, se paga al ganador)
+  ─────────────────────────────────────────────────────────────────────────────
+  Si no hay L2:             empresa recibe $375 en total
+  Si venta directa sin seller: empresa recibe $350, pool $25 igual
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PASOS PENDIENTES PARA ACTIVAR EL PROYECTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  PASO 1 — SERVICE ROLE KEY (critico, bloquea todo lo demas):
+     -> Ve a: https://supabase.com/dashboard/project/urkiiwhnlsrrxwqmowzp/settings/api-keys
+     -> Seccion "Secret keys" -> copia la clave "service_role"
+     -> Abre .env.local y reemplaza: SUPABASE_SERVICE_ROLE_KEY=<tu-clave>
+
+  PASO 2 — APLICAR MIGRACIONES DE BASE DE DATOS:
+     En la terminal del proyecto:
+     npx supabase login
+     npx supabase link --project-ref urkiiwhnlsrrxwqmowzp
+     npx supabase db push
+
+  PASO 3 — CREAR PRIMER USUARIO ADMIN:
+     -> Ve a: https://supabase.com/dashboard/project/urkiiwhnlsrrxwqmowzp/auth/users
+     -> Click "Add user" -> ingresa email + contrasena
+     -> Ve a Table Editor -> tabla "profiles" -> busca ese usuario
+     -> Cambia el campo "role" de "customer" a "admin"
+
+  PASO 4 — ACTUALIZAR CLAVES REALES EN .env.local:
+     -> Stripe keys: reemplazar pk_test_ / sk_test_ con claves reales de Stripe
+     -> Resend API key: agregar clave real de resend.com
+     -> GVM_ZELLE_PHONE: poner el numero de Zelle real del negocio
+
+  PASO 5 — INICIAR Y PROBAR:
+     npm run dev
+     -> Abrir: http://localhost:3000          (landing publica)
+     -> Login:  http://localhost:3000/login   (admin y sellers)
+
+
+================================================================================

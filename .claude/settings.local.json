@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --yes)",
+      "Bash(npm install *)",
+      "Bash(npx jest *)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(pkill -f \"node_modules/.bin/next\")",
+      "Bash(node node_modules/.bin/next dev)",
+      "Bash(echo \"PID: $!\")",
+      "Read(//private/tmp/**)",
+      "Bash(curl -s http://localhost:3000 -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:3000/api/tickets/available)",
+      "WebFetch(domain:ovrlnd.com)",
+      "Bash(node node_modules/.bin/next build)",
+      "Bash(node node_modules/.bin/tsc --noEmit)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)"
+    ]
+  }
+}
