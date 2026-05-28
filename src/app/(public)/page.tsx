@@ -204,7 +204,7 @@ function SiteHeader() {
 
   return (
     <header
-      className="sticky top-[52px] sm:top-9 z-40 w-full transition-all duration-300"
+      className="sticky top-8 z-40 w-full transition-all duration-300"
       style={{
         background: scrolled ? 'rgba(10,10,10,0.97)' : 'rgba(10,10,10,0.75)',
         borderBottom: '1px solid rgba(201,168,76,0.12)',
@@ -333,28 +333,21 @@ function SiteHeader() {
 // ─── URGENCY BANNER ───────────────────────────────────────────────────────────
 
 function UrgencyBanner({ available }: { available: number | null }) {
-  const time = useCountdown(DRAW_DATE)
-  const { days, hours, minutes, seconds } = time ?? { days: 0, hours: 0, minutes: 0, seconds: 0 }
-  const sold = available !== null ? 1000 - available : 0
+  const left = available ?? 1000
+  const sold = 1000 - left
   const pct = Math.min(100, (sold / 1000) * 100)
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 text-black text-xs font-bold uppercase tracking-wider" style={{ background: 'linear-gradient(90deg, #8B6914, #D4AF37, #F0D060, #D4AF37, #8B6914)', backgroundSize: '200% auto', animation: 'shimmer 3s linear infinite' }}>
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-6 py-2 px-4 text-center">
-        <span className="flex items-center gap-2 font-black">
-          🔥 $1,000/DAY × 90 DAYS STARTS IN
-        </span>
-        <span className="hidden sm:block opacity-50">|</span>
-        <span className="font-black tabular-nums">
-          {days}d {String(hours).padStart(2, '0')}h {String(minutes).padStart(2, '0')}m {String(seconds).padStart(2, '0')}s
-        </span>
-        <span className="hidden sm:block opacity-50">|</span>
-        <span>
-          <span className="font-black">{available !== null ? available : '…'}</span> TICKETS LEFT
-        </span>
+    <div className="fixed top-0 left-0 right-0 z-50 text-black font-black uppercase" style={{ background: 'linear-gradient(90deg, #8B6914, #D4AF37, #F0D060, #D4AF37, #8B6914)', backgroundSize: '200% auto', animation: 'shimmer 3s linear infinite' }}>
+      <div className="flex items-center justify-center gap-2 sm:gap-5 py-1.5 px-3 text-center flex-wrap text-[10px] sm:text-xs tracking-wider leading-none">
+        <span>🎟️ <span className="text-black/80">ONLY</span> <span className="text-base sm:text-lg leading-none">{left}</span> TICKETS LEFT</span>
+        <span className="opacity-40 hidden sm:inline">·</span>
+        <span className="hidden sm:inline">🔥 $1,000/DAY × 90 DAYS</span>
+        <span className="opacity-40 hidden md:inline">·</span>
+        <span className="hidden md:inline">DRAWING WHEN #1,000 SELLS</span>
       </div>
-      <div className="h-0.5 bg-black/30">
-        <div className="h-full bg-white transition-all duration-1000" style={{ width: `${pct}%` }} />
+      <div className="h-0.5 bg-black/20">
+        <div className="h-full bg-white/60 transition-all duration-1000" style={{ width: `${Math.max(1, pct)}%` }} />
       </div>
     </div>
   )
@@ -608,28 +601,30 @@ function PrizesSection() {
           </div>
 
           {/* 2nd Prize */}
-          <div className="relative overflow-hidden flex flex-col justify-between p-8 gap-6"
-            style={{ background: 'linear-gradient(160deg,#080808,#0f0f0f)', border: '1px solid rgba(255,255,255,0.13)', boxShadow: 'inset 0 0 40px rgba(255,255,255,0.03)' }}>
-            {/* Corner shimmer */}
-            <div className="absolute top-0 right-0 w-32 h-32 pointer-events-none" style={{ background: 'radial-gradient(circle at top right, rgba(255,255,255,0.07), transparent 70%)' }} />
-            <div className="flex items-start justify-between">
-              <div className="text-[9px] font-black uppercase tracking-[0.3em] text-white/50 border border-white/15 px-3 py-1.5">2nd Prize</div>
-              <span className="text-3xl opacity-40 grayscale">💵</span>
+          <div className="relative overflow-hidden flex flex-col justify-between p-6 gap-5"
+            style={{ background: 'linear-gradient(160deg,#060606,#0e0e0e)', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 0 30px rgba(255,255,255,0.04), inset 0 0 30px rgba(255,255,255,0.02)' }}>
+            <div className="absolute top-0 right-0 w-36 h-36 pointer-events-none" style={{ background: 'radial-gradient(circle at top right, rgba(255,255,255,0.09), transparent 65%)' }} />
+            <div className="absolute bottom-0 left-0 w-24 h-24 pointer-events-none" style={{ background: 'radial-gradient(circle at bottom left, rgba(255,255,255,0.05), transparent 70%)' }} />
+
+            <div className="flex items-start justify-between relative z-10">
+              <div className="text-[9px] font-black uppercase tracking-[0.3em] text-white/45 border border-white/12 px-3 py-1.5">2nd Prize</div>
+              <span className="text-2xl opacity-30">💵</span>
             </div>
-            <div className="flex flex-col gap-1">
-              <p className="text-white/35 text-[10px] uppercase tracking-widest">Cash Prize — Direct Wire</p>
-              <p className="font-black leading-none"
-                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(3rem,6vw,4.5rem)', color: '#fff', textShadow: '0 0 40px rgba(255,255,255,0.35), 0 0 80px rgba(255,255,255,0.15)' }}>
+
+            <div className="relative z-10 flex flex-col gap-1.5">
+              <p className="text-white/30 text-[9px] uppercase tracking-widest">Cash · Direct Wire Transfer</p>
+              <p className="font-black leading-[0.9] break-words"
+                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2.2rem,4.5vw,3.2rem)', color: '#fff', textShadow: '0 0 30px rgba(255,255,255,0.5), 0 0 60px rgba(255,255,255,0.2), 0 2px 0 rgba(0,0,0,0.8)' }}>
                 $20,000
               </p>
-              <p className="text-white/40 text-xs uppercase tracking-widest mt-1">Twenty thousand dollars</p>
+              <p className="text-white/30 text-[9px] uppercase tracking-[0.2em]">Twenty Thousand Dollars</p>
             </div>
-            <div className="flex flex-col gap-2">
-              <div className="h-px bg-white/10" />
-              <p className="text-white/35 text-sm leading-relaxed">
-                A second number is drawn from the pool. That ticket holder receives $20,000 wired directly to their account.
+
+            <div className="relative z-10 flex flex-col gap-2">
+              <div className="h-px bg-white/8" />
+              <p className="text-white/30 text-xs leading-relaxed">
+                Second ticket drawn wins $20K wired directly to their account.
               </p>
-              <div className="text-[10px] uppercase tracking-wider text-white/20">Awarded to 2nd drawn ticket</div>
             </div>
           </div>
 
@@ -1165,48 +1160,67 @@ const WA_GROUP = 'https://chat.whatsapp.com/XXXXXXXXXXXXXXXXX' // ← replace wi
 function WhatsAppPromo({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-[var(--black-card)] border-2 border-[var(--gold)] max-w-sm w-full p-8 text-center shadow-2xl">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-[var(--black-card)] border border-[var(--gold)] max-w-sm w-full shadow-2xl overflow-hidden"
+        style={{ boxShadow: '0 0 60px rgba(212,175,55,0.2)' }}>
+
+        {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-4 text-white/40 hover:text-white text-2xl font-light leading-none"
+          className="absolute top-3 right-3 z-10 text-white/50 hover:text-white text-2xl font-light leading-none w-8 h-8 flex items-center justify-center"
           aria-label="Close"
-        >
-          ×
-        </button>
+        >×</button>
 
-        <div className="w-14 h-14 mx-auto mb-5 flex items-center justify-center rounded-full" style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37)' }}>
-          <span className="text-black font-black text-2xl">$</span>
+        {/* 4Runner image */}
+        <div className="relative w-full overflow-hidden" style={{ height: 180 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/assets/4runner-golden-gate.png"
+            alt="2026 Toyota 4Runner Trailhunter"
+            className="w-full h-full object-cover"
+            style={{ objectPosition: 'center 55%' }}
+          />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(10,8,0,0.7))' }} />
+          <div className="absolute bottom-3 left-4 right-4">
+            <p className="text-[var(--gold)] text-[9px] font-black uppercase tracking-[0.3em]">Grand Prize</p>
+            <p className="text-white font-black text-sm leading-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
+              2026 Toyota 4Runner Trailhunter
+            </p>
+          </div>
         </div>
 
-        <p className="text-[var(--gold)] text-[10px] font-black uppercase tracking-[0.35em] mb-2">Daily Giveaway</p>
-        <h2 className="font-black uppercase text-white leading-tight mb-3" style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.4rem, 5vw, 1.9rem)' }}>
-          Don&apos;t Miss Out on<br /><span style={{ color: 'var(--gold)' }}>$1,000 Every Day</span>
-        </h2>
-        <p className="text-white/50 text-sm mb-6 leading-relaxed">
-          Join 1,000 exclusive members for a chance to win a <strong className="text-white">2026 Toyota 4Runner Trailhunter</strong> or $70,000 cash — plus a daily $1,000 giveaway for 90 days.
-        </p>
+        {/* Content */}
+        <div className="p-6 text-center">
+          <p className="text-[var(--gold)] text-[9px] font-black uppercase tracking-[0.35em] mb-1.5">Limited to 1,000 Tickets</p>
+          <h2 className="font-black uppercase text-white leading-tight mb-2" style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.25rem, 4vw, 1.6rem)' }}>
+            Win the <span style={{ color: 'var(--gold)' }}>4Runner</span><br />or $70,000 Cash
+          </h2>
+          <p className="text-white/45 text-xs mb-5 leading-relaxed">
+            Plus <strong className="text-[var(--gold)]">$1,000/day × 90 days</strong> starting Jul 31 and <strong className="text-white">$20,000</strong> 2nd prize.
+          </p>
 
-        <a
-          href="/#buy-form"
-          onClick={onClose}
-          className="flex items-center justify-center w-full py-4 font-black uppercase tracking-widest text-black text-sm mb-3 transition-transform hover:scale-105"
-          style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37, #F0D060, #D4AF37)' }}
-        >
-          Get My Ticket — $500
-        </a>
+          <a
+            href="/#buy-form"
+            onClick={onClose}
+            className="flex items-center justify-center w-full py-3.5 font-black uppercase tracking-widest text-black text-sm mb-3 transition-transform hover:scale-105"
+            style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37, #F0D060, #D4AF37)', boxShadow: '0 0 20px rgba(212,175,55,0.4)' }}
+          >
+            🎟 Get My Ticket — $500
+          </a>
 
-        <a
-          href={WA_GROUP}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2.5 w-full py-3 border-2 border-[#25D366] text-[#25D366] font-black uppercase tracking-widest text-xs hover:bg-[#25D366]/10 transition-colors"
-        >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden>
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-          </svg>
-          Undecided? Join Our WhatsApp Group
-        </a>
+          <a
+            href={WA_GROUP}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-3 font-black uppercase tracking-widest text-xs transition-colors"
+            style={{ border: '1px solid #25D366', color: '#25D366' }}
+          >
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden>
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            Join Our WhatsApp Group
+          </a>
+        </div>
       </div>
     </div>
   )
