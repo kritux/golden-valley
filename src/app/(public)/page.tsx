@@ -394,30 +394,49 @@ function Hero({ available }: { available: number | null }) {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          Golden Valley<br />Members Raffle
+          Golden Valley<br />Members
         </h1>
 
         <p className="text-white/55 text-base md:text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
-          1,000 exclusive tickets. One draw. Three prize tiers — cash, vehicle, and daily giveaway.
-          The draw happens when the last ticket is sold.
+          1,000 exclusive tickets. Three prize tiers. The moment ticket #1,000 is sold — the draw happens live.
         </p>
 
-        {/* Prize pills */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
-          <div className="bg-[var(--black-card)] border border-[var(--gold)] border-opacity-60 px-4 py-2.5 text-center">
-            <div className="text-[var(--gold)] font-black text-[10px] uppercase tracking-wider">1st Prize</div>
-            <div className="text-white font-black text-sm mt-0.5">4Runner Trailhunter 2026</div>
-            <div className="text-white/40 text-[10px] mt-0.5">or $70,000 cash</div>
+        {/* Casino-style prize showcase */}
+        <div className="w-full max-w-3xl mx-auto mb-10 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* 1st Prize */}
+          <div className="relative overflow-hidden p-5 text-center flex flex-col items-center gap-1.5 group"
+            style={{ background: 'linear-gradient(160deg,#0e0a00,#1a1200)', border: '1px solid rgba(212,175,55,0.5)', boxShadow: '0 0 24px rgba(212,175,55,0.15), inset 0 0 30px rgba(212,175,55,0.04)' }}>
+            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg,rgba(212,175,55,0.08) 0%,transparent 60%)' }} />
+            <span className="text-[9px] font-black uppercase tracking-[0.35em] text-[var(--gold)] opacity-70">Grand Prize</span>
+            <span className="font-black text-white text-base leading-tight" style={{ fontFamily: 'var(--font-playfair)', textShadow: '0 0 20px rgba(212,175,55,0.4)' }}>
+              4Runner<br/>Trailhunter
+            </span>
+            <span className="text-[9px] uppercase tracking-wider text-white/35">2026 Special Edition</span>
+            <div className="w-full h-px bg-[var(--gold)] opacity-20 my-1" />
+            <span className="font-black text-[var(--gold)] text-2xl" style={{ fontFamily: 'var(--font-dm-mono)', textShadow: '0 0 16px rgba(212,175,55,0.7)' }}>$70,000</span>
+            <span className="text-[9px] text-white/30 uppercase tracking-wider">or cash equivalent</span>
           </div>
-          <div className="bg-[var(--black-card)] border border-[var(--black-border)] px-4 py-2.5 text-center">
-            <div className="text-white/50 font-black text-[10px] uppercase tracking-wider">2nd Prize</div>
-            <div className="text-white font-black text-sm mt-0.5" style={{ fontFamily: 'var(--font-dm-mono)' }}>$20,000</div>
-            <div className="text-white/40 text-[10px] mt-0.5">Cash</div>
+
+          {/* 2nd Prize */}
+          <div className="relative overflow-hidden p-5 text-center flex flex-col items-center gap-1.5"
+            style={{ background: 'linear-gradient(160deg,#080808,#111)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 0 20px rgba(255,255,255,0.04)' }}>
+            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg,rgba(255,255,255,0.04) 0%,transparent 60%)' }} />
+            <span className="text-[9px] font-black uppercase tracking-[0.35em] text-white/50">2nd Prize</span>
+            <span className="text-[9px] uppercase tracking-wider text-white/30">Cash</span>
+            <div className="w-full h-px bg-white/10 my-1" />
+            <span className="font-black text-white leading-none" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2rem, 5vw, 2.6rem)', textShadow: '0 0 30px rgba(255,255,255,0.25)' }}>$20,000</span>
+            <span className="text-[9px] text-white/30 uppercase tracking-wider">wired to winner</span>
           </div>
-          <div className="px-4 py-2.5 text-center" style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37)' }}>
-            <div className="text-black/70 font-black text-[10px] uppercase tracking-wider">Daily Prize</div>
-            <div className="text-black font-black text-sm mt-0.5" style={{ fontFamily: 'var(--font-dm-mono)' }}>$1,000 × 90 Days</div>
-            <div className="text-black/60 text-[10px] mt-0.5">Starts Jul 31</div>
+
+          {/* Daily Prize */}
+          <div className="relative overflow-hidden p-5 text-center flex flex-col items-center gap-1.5"
+            style={{ background: 'linear-gradient(160deg,#0e0a00,#1f1400)', border: '1px solid rgba(212,175,55,0.7)', boxShadow: '0 0 28px rgba(212,175,55,0.25), inset 0 0 20px rgba(212,175,55,0.06)' }}>
+            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg,rgba(212,175,55,0.14) 0%,transparent 60%)' }} />
+            <span className="text-[9px] font-black uppercase tracking-[0.35em] text-[var(--gold)] opacity-90">Daily Prize</span>
+            <span className="text-[9px] uppercase tracking-wider text-[var(--gold)] opacity-50">Starts Jul 31, 2026</span>
+            <div className="w-full h-px bg-[var(--gold)] opacity-30 my-1" />
+            <span className="font-black leading-none" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2rem, 5vw, 2.6rem)', background: 'linear-gradient(180deg,#F0D060,#D4AF37)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.8))' }}>$1,000</span>
+            <span className="font-black text-[var(--gold)] text-sm opacity-80">× 90 days</span>
           </div>
         </div>
 
@@ -458,20 +477,21 @@ function Hero({ available }: { available: number | null }) {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             onClick={() => document.getElementById('buy-form')?.scrollIntoView({ behavior: 'smooth' })}
-            className="font-black uppercase tracking-widest text-black px-10 py-4 text-base transition-all hover:scale-105 active:scale-95"
+            className="relative font-black uppercase tracking-widest text-black px-12 py-5 text-lg transition-all hover:scale-105 active:scale-95 overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A, #C9A84C)',
-              backgroundSize: '200% auto',
-              animation: 'shimmer 2s linear infinite',
+              background: 'linear-gradient(135deg, #8B6914, #D4AF37, #F5E070, #D4AF37, #8B6914)',
+              backgroundSize: '300% auto',
+              animation: 'shimmer 2.5s linear infinite',
+              boxShadow: '0 0 30px rgba(212,175,55,0.6), 0 0 60px rgba(212,175,55,0.25), 0 4px 20px rgba(0,0,0,0.6)',
             }}
           >
-            Get Your Ticket — $500
+            <span className="relative z-10">🎟 Get Your Ticket — $500</span>
           </button>
           <button
             onClick={() => document.getElementById('prizes')?.scrollIntoView({ behavior: 'smooth' })}
-            className="font-black uppercase tracking-widest text-white/60 px-10 py-4 text-base border border-white/20 hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors"
+            className="font-black uppercase tracking-widest text-white/60 px-10 py-5 text-base border border-white/20 hover:border-[var(--gold)] hover:text-[var(--gold)] transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.2)]"
           >
-            View All Prizes
+            View All Prizes ↓
           </button>
         </div>
       </div>
@@ -588,47 +608,71 @@ function PrizesSection() {
           </div>
 
           {/* 2nd Prize */}
-          <div className="bg-[var(--black-card)] border border-[var(--black-border)] p-8 flex flex-col gap-4">
+          <div className="relative overflow-hidden flex flex-col justify-between p-8 gap-6"
+            style={{ background: 'linear-gradient(160deg,#080808,#0f0f0f)', border: '1px solid rgba(255,255,255,0.13)', boxShadow: 'inset 0 0 40px rgba(255,255,255,0.03)' }}>
+            {/* Corner shimmer */}
+            <div className="absolute top-0 right-0 w-32 h-32 pointer-events-none" style={{ background: 'radial-gradient(circle at top right, rgba(255,255,255,0.07), transparent 70%)' }} />
             <div className="flex items-start justify-between">
-              <div className="bg-white/10 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1">
-                2nd Prize
-              </div>
-              <span className="text-4xl opacity-60">💵</span>
+              <div className="text-[9px] font-black uppercase tracking-[0.3em] text-white/50 border border-white/15 px-3 py-1.5">2nd Prize</div>
+              <span className="text-3xl opacity-40 grayscale">💵</span>
             </div>
-            <div>
-              <p className="text-white/40 text-xs uppercase tracking-widest mb-1">Cash Prize</p>
-              <p className="font-black text-white text-4xl" style={{ fontFamily: 'var(--font-dm-mono)' }}>$20,000</p>
+            <div className="flex flex-col gap-1">
+              <p className="text-white/35 text-[10px] uppercase tracking-widest">Cash Prize — Direct Wire</p>
+              <p className="font-black leading-none"
+                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(3rem,6vw,4.5rem)', color: '#fff', textShadow: '0 0 40px rgba(255,255,255,0.35), 0 0 80px rgba(255,255,255,0.15)' }}>
+                $20,000
+              </p>
+              <p className="text-white/40 text-xs uppercase tracking-widest mt-1">Twenty thousand dollars</p>
             </div>
-            <p className="text-white/40 text-sm leading-relaxed flex-1">
-              A second ticket number is drawn. That holder receives twenty thousand dollars cash, wired directly to their account.
-            </p>
-            <div className="h-px bg-[var(--black-border)]" />
-            <div className="text-[10px] uppercase tracking-wider text-white/25">Awarded to 2nd drawn ticket</div>
+            <div className="flex flex-col gap-2">
+              <div className="h-px bg-white/10" />
+              <p className="text-white/35 text-sm leading-relaxed">
+                A second number is drawn from the pool. That ticket holder receives $20,000 wired directly to their account.
+              </p>
+              <div className="text-[10px] uppercase tracking-wider text-white/20">Awarded to 2nd drawn ticket</div>
+            </div>
           </div>
 
           {/* 3rd — Daily */}
-          <div className="md:col-span-2 p-8 flex flex-col gap-4" style={{ background: 'linear-gradient(135deg, #8B6914 0%, #D4AF37 60%, #F0D060 100%)' }}>
-            <div className="flex items-start justify-between">
-              <div className="bg-black/20 text-black text-[10px] font-black uppercase tracking-widest px-3 py-1">
+          <div className="md:col-span-2 relative overflow-hidden p-8 flex flex-col gap-5"
+            style={{ background: 'linear-gradient(135deg,#0e0800 0%,#1a1000 40%,#241800 100%)', border: '1px solid rgba(212,175,55,0.55)', boxShadow: '0 0 40px rgba(212,175,55,0.2), inset 0 0 60px rgba(212,175,55,0.05)' }}>
+            {/* Background glow orb */}
+            <div className="absolute -top-10 -right-10 w-56 h-56 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.18) 0%, transparent 70%)' }} />
+            <div className="absolute bottom-0 left-0 w-40 h-40 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%)' }} />
+
+            <div className="flex items-start justify-between relative z-10">
+              <div className="text-[9px] font-black uppercase tracking-[0.3em] text-[var(--gold)] border border-[var(--gold)] border-opacity-50 px-3 py-1.5">
                 Daily Giveaway
               </div>
-              <span className="text-4xl">📅</span>
+              <span className="text-3xl" style={{ filter: 'drop-shadow(0 0 8px rgba(212,175,55,0.8))' }}>🏅</span>
             </div>
-            <div>
-              <p className="text-black/60 text-xs uppercase tracking-widest mb-1">Starting Jul 31, 2026</p>
-              <p className="font-black text-black leading-none" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
-                $1,000<span className="text-black/60 text-2xl">/day</span>
-              </p>
-              <p className="text-black/70 text-base font-bold mt-1">for 90 consecutive days</p>
+
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-end gap-4">
+              <div className="flex flex-col gap-1">
+                <p className="text-[var(--gold)] text-[10px] uppercase tracking-widest opacity-60">Every Single Day — Starting Jul 31</p>
+                <div className="flex items-end gap-2 leading-none">
+                  <span className="font-black"
+                    style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(3.5rem,8vw,5.5rem)', background: 'linear-gradient(180deg,#F5E070 0%,#D4AF37 50%,#8B6914 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 0 12px rgba(212,175,55,0.9))' }}>
+                    $1,000
+                  </span>
+                  <span className="text-[var(--gold)] font-black text-2xl opacity-70 mb-2">/day</span>
+                </div>
+                <p className="text-[var(--gold)] text-base font-black opacity-70 tracking-widest uppercase">× 90 Consecutive Days</p>
+              </div>
+
+              <div className="sm:ml-auto flex flex-col items-start sm:items-end gap-1 shrink-0">
+                <span className="text-[var(--gold)] font-black text-3xl opacity-60" style={{ fontFamily: 'var(--font-dm-mono)' }}>$90,000</span>
+                <span className="text-[var(--gold)] text-[10px] uppercase tracking-wider opacity-40">Total Giveaway Pool</span>
+              </div>
             </div>
-            <p className="text-black/60 text-sm leading-relaxed">
-              When the funding milestone is reached, we start giving away $1,000 every single day for 90 consecutive days.
-            </p>
-            <div className="flex items-center gap-3 mt-auto">
-              {[['Duration','90 Days'],['Daily Amount','$1,000'],['Starts At','Milestone']].map(([label, val]) => (
-                <div key={label} className="bg-black/15 px-4 py-2 text-center">
-                  <p className="text-black/50 text-[9px] uppercase tracking-wider">{label}</p>
-                  <p className="text-black font-black text-sm">{val}</p>
+
+            <div className="h-px bg-[var(--gold)] opacity-15 relative z-10" />
+
+            <div className="relative z-10 flex items-center gap-3">
+              {[['Duration','90 Days'],['Daily Amount','$1,000'],['Starts','Jul 31, 2026']].map(([label, val]) => (
+                <div key={label} className="flex-1 text-center py-2" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)' }}>
+                  <p className="text-[var(--gold)] text-[9px] uppercase tracking-wider opacity-50">{label}</p>
+                  <p className="text-[var(--gold)] font-black text-sm">{val}</p>
                 </div>
               ))}
             </div>
