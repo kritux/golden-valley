@@ -451,7 +451,7 @@ function Hero({ available }: { available: number | null }) {
             <span className="text-[8px] font-black uppercase tracking-[0.4em]" style={{ color: '#FFD060' }}>🔥 Daily Prize 🔥</span>
             <div className="w-10 h-px my-0.5" style={{ background: 'linear-gradient(90deg,transparent,#D4AF37,transparent)' }} />
 
-            <span className="text-[8px] uppercase tracking-wider" style={{ color: 'rgba(255,200,60,0.6)' }}>Every Day · Jul 31 →</span>
+            <span className="text-[8px] uppercase tracking-wider" style={{ color: 'rgba(255,200,60,0.6)' }}>Every Day — Coming Soon</span>
 
             <div className="w-full h-px my-1" style={{ background: 'linear-gradient(90deg,transparent,rgba(212,175,55,0.5),transparent)' }} />
 
@@ -681,7 +681,7 @@ function PrizesSection() {
 
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-end gap-4">
               <div className="flex flex-col gap-1">
-                <p className="text-[var(--gold)] text-[10px] uppercase tracking-widest opacity-60">Every Single Day — Starting Jul 31</p>
+                <p className="text-[var(--gold)] text-[10px] uppercase tracking-widest opacity-60">Every Single Day</p>
                 <div className="flex items-end gap-2 leading-none">
                   <span className="font-black"
                     style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(3.5rem,8vw,5.5rem)', background: 'linear-gradient(180deg,#F5E070 0%,#D4AF37 50%,#8B6914 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 0 12px rgba(212,175,55,0.9))' }}>
@@ -697,7 +697,7 @@ function PrizesSection() {
             <div className="h-px bg-[var(--gold)] opacity-15 relative z-10" />
 
             <div className="relative z-10 flex items-center gap-3">
-              {[['Duration','90 Days'],['Daily Amount','$1,000'],['Starts','Jul 31, 2026']].map(([label, val]) => (
+              {[['Duration','90 Days'],['Daily Amount','$1,000'],['Starts','TBD']].map(([label, val]) => (
                 <div key={label} className="flex-1 text-center py-2" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)' }}>
                   <p className="text-[var(--gold)] text-[9px] uppercase tracking-wider opacity-50">{label}</p>
                   <p className="text-[var(--gold)] font-black text-sm">{val}</p>
@@ -1229,7 +1229,7 @@ function WhatsAppPromo({ onClose }: { onClose: () => void }) {
             Win the <span style={{ color: 'var(--gold)' }}>4Runner</span><br />or $70,000 Cash
           </h2>
           <p className="text-white/45 text-xs mb-5 leading-relaxed">
-            Plus <strong className="text-[var(--gold)]">$1,000/day × 90 days</strong> starting Jul 31 and <strong className="text-white">$20,000</strong> 2nd prize.
+            Plus <strong className="text-[var(--gold)]">$1,000/day × 90 days</strong> plus <strong className="text-white">$20,000</strong> 2nd prize.
           </p>
 
           <a

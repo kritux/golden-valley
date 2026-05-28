@@ -18,7 +18,16 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(ssh -V)",
+      "Bash(grep -n \"Jul 31\\\\|July 31\\\\|90,000\\\\|90000\\\\|\\\\$90\\\\|Starting Jul\\\\|Starts Jul\\\\|starts Jul\\\\|milestone\" \"/Users/growthbizon/Documents/Growth Bizon/Web:app/golden-valley/src/app/\\(public\\)/page.tsx\")",
+      "Bash(grep -n \"Jul 31\\\\|July 31\\\\|90,000\\\\|90000\\\\|\\\\$90\\\\|Starting Jul\\\\|Starts Jul\\\\|starts Jul\\\\|milestone\\\\|Jul 31\\\\|Starts At.*Milestone\\\\|starting Jul\\\\|starting at\\\\|90 Days\\\\|90 days\\\\|90-day\\\\|Jul 31\\\\|DRAW_DATE\\\\|Jul.*2026\\\\|countdown\" \"/Users/growthbizon/Documents/Growth Bizon/Web:app/golden-valley/src/app/\\(public\\)/page.tsx\")",
+      "Bash(curl -s -X POST https://urkiiwhnlsrrxwqmowzp.supabase.co/auth/v1/admin/users -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVya2lpd2hubHNycnh3cW1vd3pwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTc2NTM0MywiZXhwIjoyMDk1MzQxMzQzfQ.yp5JYjg9-chwJHJtEzKhyEUGYuYOXdGkCBkcu3UA0OI' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVya2lpd2hubHNycnh3cW1vd3pwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTc2NTM0MywiZXhwIjoyMDk1MzQxMzQzfQ.yp5JYjg9-chwJHJtEzKhyEUGYuYOXdGkCBkcu3UA0OI' -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s -X PATCH https://urkiiwhnlsrrxwqmowzp.supabase.co/rest/v1/profiles?email=eq.growthbizon%40gmail.com -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVya2lpd2hubHNycnh3cW1vd3pwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTc2NTM0MywiZXhwIjoyMDk1MzQxMzQzfQ.yp5JYjg9-chwJHJtEzKhyEUGYuYOXdGkCBkcu3UA0OI' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVya2lpd2hubHNycnh3cW1vd3pwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTc2NTM0MywiZXhwIjoyMDk1MzQxMzQzfQ.yp5JYjg9-chwJHJtEzKhyEUGYuYOXdGkCBkcu3UA0OI' -H 'Content-Type: application/json' -H 'Prefer: return=representation' -d '{\"role\": \"admin\"}')",
+      "Bash(curl *)",
+      "Bash(python3 *)",
+      "Bash(npx tsc *)"
     ]
   }
 }

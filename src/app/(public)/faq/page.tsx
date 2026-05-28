@@ -26,7 +26,7 @@ const FAQS = [
   },
   {
     q: 'When do the daily $1,000 prizes begin?',
-    a: 'The daily prizes begin once all 1,000 entries have been sold and the minimum fundraising milestone has been reached. The target start date is July 31, 2026.',
+    a: 'The daily prizes begin once all 1,000 entries have been sold and the minimum fundraising milestone has been reached. The start date will be announced once all 1,000 tickets are confirmed.',
   },
   {
     q: 'How do the daily prizes work?',
