@@ -363,8 +363,6 @@ function UrgencyBanner({ available }: { available: number | null }) {
 // ─── HERO ─────────────────────────────────────────────────────────────────────
 
 function Hero({ available }: { available: number | null }) {
-  const time = useCountdown(DRAW_DATE)
-  const { days, hours, minutes, seconds } = time ?? { days: 0, hours: 0, minutes: 0, seconds: 0 }
   const sold = available !== null ? 1000 - available : 0
 
   return (
@@ -423,58 +421,37 @@ function Hero({ available }: { available: number | null }) {
           </div>
         </div>
 
-        {/* Countdown — $1K/day start */}
-        <p className="text-white/30 text-[10px] uppercase tracking-[0.3em] mb-3">
-          ⏱ Daily $1,000 giveaway begins in:
-        </p>
-        <div className="flex items-center justify-center gap-3 md:gap-5 mb-10">
-          {[
-            { val: days, label: 'Days' },
-            { val: hours, label: 'Hrs' },
-            { val: minutes, label: 'Min' },
-            { val: seconds, label: 'Sec' },
-          ].map(({ val, label }) => (
-            <div key={label} className="flex flex-col items-center">
-              <div
-                className="bg-[var(--black-card)] border border-[var(--gold)] border-opacity-60 text-[var(--gold)] font-black tabular-nums flex items-center justify-center"
-                style={{
-                  fontFamily: 'var(--font-dm-mono)',
-                  fontSize: 'clamp(1.4rem, 4.5vw, 2.8rem)',
-                  width: 'clamp(56px, 11vw, 92px)',
-                  height: 'clamp(56px, 11vw, 92px)',
-                }}
-              >
-                {String(val).padStart(2, '0')}
-              </div>
-              <span className="text-white/35 text-[10px] uppercase tracking-widest mt-1">{label}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Ticket progress bar */}
-        <div className="w-full max-w-xl mx-auto mb-10">
-          <div className="flex justify-between items-end mb-2">
-            <span className="text-white/40 text-[10px] uppercase tracking-widest">Tickets Sold</span>
-            <span className="font-black tabular-nums" style={{ fontFamily: 'var(--font-dm-mono)', color: 'var(--gold)', fontSize: 'clamp(1rem, 3vw, 1.4rem)' }}>
-              {sold} <span className="text-white/30 text-xs font-normal">/ 1,000</span>
+        {/* Milestone progress — % only, no amounts */}
+        <div className="w-full max-w-lg mx-auto mb-10">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-white/35 text-[10px] uppercase tracking-widest">Campaign Progress</span>
+            <span className="font-black tabular-nums text-[var(--gold)]" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '1.1rem' }}>
+              {Math.min(100, Math.round(((1000 - (available ?? 1000)) * 500) / 5000))}%
             </span>
           </div>
-          <div className="h-3 bg-white/10 rounded-full overflow-hidden border border-white/10">
+
+          {/* Bar with milestone marker */}
+          <div className="relative h-3 bg-white/10 rounded-full overflow-hidden border border-white/10">
+            {/* 60% marker = $300K milestone */}
+            <div className="absolute top-0 bottom-0 w-0.5 bg-white/40 z-10" style={{ left: '60%' }} />
             <div
               className="h-full rounded-full transition-all duration-1000"
               style={{
-                width: `${Math.max(2, (sold / 1000) * 100)}%`,
+                width: `${Math.max(2, Math.min(100, ((1000 - (available ?? 1000)) / 1000) * 100))}%`,
                 background: 'linear-gradient(90deg, #8B6914, #D4AF37, #F0D060)',
-                boxShadow: '0 0 12px rgba(212,175,55,0.6)',
+                boxShadow: '0 0 12px rgba(212,175,55,0.5)',
               }}
             />
           </div>
-          <div className="flex justify-between mt-1.5">
-            <span className="text-white/25 text-[9px] uppercase tracking-widest">0</span>
-            <span className="text-white/40 text-[10px] font-bold">
-              {available !== null ? available : <GoldSpinner size={12} />} remaining
-            </span>
-            <span className="text-white/25 text-[9px] uppercase tracking-widest">1,000</span>
+
+          {/* Milestone label */}
+          <div className="relative mt-1.5">
+            <div className="absolute flex flex-col items-center" style={{ left: '60%', transform: 'translateX(-50%)' }}>
+              <span className="text-white/35 text-[9px] uppercase tracking-widest whitespace-nowrap">
+                ↑ Daily $1K Milestone
+              </span>
+            </div>
+            <div className="h-4" />
           </div>
         </div>
 
@@ -612,7 +589,7 @@ function TrustStrip() {
         <span>✅ Official Rules</span>
         <span>📧 Instant Confirmation</span>
         <span>🎯 Only 1,000 Entries</span>
-        <span>🏆 $180K+ in Prizes</span>
+        <span>🏆 Life-Changing Prizes</span>
       </div>
     </div>
   )
