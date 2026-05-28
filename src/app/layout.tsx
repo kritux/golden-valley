@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, DM_Sans, DM_Mono } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 
 const playfair = Playfair_Display({
@@ -40,6 +41,12 @@ export default function RootLayout({
     <html lang="en" className={`${playfair.variable} ${dmSans.variable} ${dmMono.variable}`}>
       <body className="bg-[var(--black)] text-[var(--white)] antialiased">
         {children}
+        {/* Highlead.us external tracking — page views + form detection */}
+        <Script
+          src="https://links.highlead.us/js/external-tracking.js"
+          data-tracking-id="tk_b06c1254e2f644e189beb0c484eaa2c1"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   )

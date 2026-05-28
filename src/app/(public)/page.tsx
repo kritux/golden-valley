@@ -1239,6 +1239,19 @@ function BuyForm() {
         window.location.href = `/checkout?secret=${result.stripe_client_secret}`
         return
       }
+      // Push contact event to Highlead.us browser tracker
+      try {
+        const lcTracking = (window as Record<string, unknown>)._lcTracking as { tracker?: { submitForm?: (d: unknown) => void } } | undefined
+        lcTracking?.tracker?.submitForm?.({
+          first_name: data.first_name,
+          last_name: data.last_name,
+          email: data.email,
+          phone: data.phone,
+          city: data.city,
+          state: data.state,
+        })
+      } catch { /* non-fatal */ }
+
       setSubmitSuccess(true)
     } catch (err: unknown) {
       setSubmitError(err instanceof Error ? err.message : 'An unexpected error occurred.')

@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/server'
 import { createPaymentIntent } from '@/lib/stripe'
 import { resolveReferral } from '@/lib/referrals'
-import { notifyGHL } from '@/lib/ghl'
+import { notifyGHL, pushGHLContact } from '@/lib/ghl'
 
 const intentSchema = z.object({
   first_name: z.string().min(1).max(50).trim(),
@@ -148,7 +148,25 @@ export async function POST(req: NextRequest) {
   // Link payment back to ticket
   await supabase.from('tickets').update({ payment_id: payment.id }).eq('id', ticket.id)
 
-  // GHL notification (non-blocking)
+  // Push full contact to GHL/Highlead CRM (non-blocking)
+  pushGHLContact({
+    firstName: data.first_name,
+    lastName: data.last_name,
+    email: data.email,
+    phone: data.phone,
+    phone2: data.phone_alt,
+    city: data.city,
+    state: data.state,
+    country: data.nationality,
+    gender: data.gender,
+    source: 'Golden Valley Members — Raffle',
+    tags: ['raffle-lead', data.payment_method === 'stripe' ? 'stripe' : 'zelle'],
+    customField: {
+      payment_method: data.payment_method,
+      payment_id: payment.id,
+      ref_code: data.ref_code ?? '',
+    },
+  })
   notifyGHL('purchase_intent', {
     buyer_email: data.email,
     buyer_name: `${data.first_name} ${data.last_name}`,
