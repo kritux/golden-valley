@@ -232,7 +232,8 @@ function SiteHeader() {
             { label: 'Prizes', id: 'prizes' },
             { label: 'How It Works', id: 'how-it-works' },
             { label: 'Winners', href: '/winners' },
-            { label: 'Ticket Board', href: '/tickets' },
+            { label: 'Tickets', href: '/tickets' },
+            { label: 'FAQ', href: '/faq' },
           ].map((item) => (
             item.href ? (
               <Link
@@ -394,44 +395,80 @@ function Hero({ available }: { available: number | null }) {
           1,000 exclusive tickets. Three prize tiers. The moment ticket #1,000 is sold — the draw happens live.
         </p>
 
-        {/* Casino-style prize showcase */}
-        <div className="w-full max-w-3xl mx-auto mb-10 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* 1st Prize */}
-          <div className="relative overflow-hidden p-5 text-center flex flex-col items-center gap-1.5 group"
-            style={{ background: 'linear-gradient(160deg,#0e0a00,#1a1200)', border: '1px solid rgba(212,175,55,0.5)', boxShadow: '0 0 24px rgba(212,175,55,0.15), inset 0 0 30px rgba(212,175,55,0.04)' }}>
-            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg,rgba(212,175,55,0.08) 0%,transparent 60%)' }} />
-            <span className="text-[9px] font-black uppercase tracking-[0.35em] text-[var(--gold)] opacity-70">Grand Prize</span>
-            <span className="font-black text-white text-base leading-tight" style={{ fontFamily: 'var(--font-playfair)', textShadow: '0 0 20px rgba(212,175,55,0.4)' }}>
+        {/* ── CASINO PRIZE SHOWCASE ── */}
+        <div className="w-full max-w-3xl mx-auto mb-10 grid grid-cols-1 sm:grid-cols-3 gap-2">
+
+          {/* Grand Prize */}
+          <div className="relative overflow-hidden p-5 text-center flex flex-col items-center gap-2"
+            style={{ background: 'linear-gradient(170deg,#0a0700 0%,#1c1200 60%,#0a0700 100%)', border: '1px solid #C9A84C', boxShadow: '0 0 40px rgba(212,175,55,0.35), 0 0 80px rgba(212,175,55,0.12), inset 0 1px 0 rgba(255,220,80,0.2)' }}>
+            {/* Animated corner flash */}
+            <div className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ background: 'linear-gradient(135deg,rgba(255,220,60,0.12) 0%,transparent 50%,rgba(255,180,0,0.06) 100%)' }} />
+            <div className="absolute top-0 inset-x-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,220,80,0.9),transparent)' }} />
+
+            <span className="text-[8px] font-black uppercase tracking-[0.4em]" style={{ color: '#FFD060' }}>★ Grand Prize ★</span>
+            <div className="w-10 h-px my-0.5" style={{ background: 'linear-gradient(90deg,transparent,#D4AF37,transparent)' }} />
+
+            <span className="font-black text-white leading-tight text-sm" style={{ fontFamily: 'var(--font-playfair)', textShadow: '0 0 20px rgba(255,200,40,0.5), 0 2px 4px rgba(0,0,0,0.8)' }}>
               4Runner<br/>Trailhunter
             </span>
-            <span className="text-[9px] uppercase tracking-wider text-white/35">2026 Special Edition</span>
-            <div className="w-full h-px bg-[var(--gold)] opacity-20 my-1" />
-            <span className="font-black text-[var(--gold)] text-2xl" style={{ fontFamily: 'var(--font-dm-mono)', textShadow: '0 0 16px rgba(212,175,55,0.7)' }}>$70,000</span>
-            <span className="text-[9px] text-white/30 uppercase tracking-wider">or cash equivalent</span>
+            <span className="text-[8px] uppercase tracking-wider" style={{ color: 'rgba(212,175,55,0.5)' }}>2026 · Special Edition</span>
+
+            <div className="w-full h-px my-1" style={{ background: 'linear-gradient(90deg,transparent,rgba(212,175,55,0.4),transparent)' }} />
+
+            <span className="font-black leading-none tabular-nums"
+              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2rem,5vw,2.8rem)', background: 'linear-gradient(180deg,#FFE566 0%,#D4AF37 45%,#8B6914 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 0 14px rgba(255,200,40,1)) drop-shadow(0 0 28px rgba(212,175,55,0.7))' }}>
+              $70,000
+            </span>
+            <span className="text-[8px] uppercase tracking-wider" style={{ color: 'rgba(212,175,55,0.5)' }}>or cash equivalent</span>
           </div>
 
           {/* 2nd Prize */}
-          <div className="relative overflow-hidden p-5 text-center flex flex-col items-center gap-1.5"
-            style={{ background: 'linear-gradient(160deg,#080808,#111)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 0 20px rgba(255,255,255,0.04)' }}>
-            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg,rgba(255,255,255,0.04) 0%,transparent 60%)' }} />
-            <span className="text-[9px] font-black uppercase tracking-[0.35em] text-white/50">2nd Prize</span>
-            <span className="text-[9px] uppercase tracking-wider text-white/30">Cash</span>
-            <div className="w-full h-px bg-white/10 my-1" />
-            <span className="font-black text-white leading-none" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2rem, 5vw, 2.6rem)', textShadow: '0 0 30px rgba(255,255,255,0.25)' }}>$20,000</span>
-            <span className="text-[9px] text-white/30 uppercase tracking-wider">wired to winner</span>
+          <div className="relative overflow-hidden p-5 text-center flex flex-col items-center gap-2"
+            style={{ background: 'linear-gradient(170deg,#060606 0%,#101010 60%,#060606 100%)', border: '1px solid rgba(200,200,210,0.35)', boxShadow: '0 0 35px rgba(220,220,255,0.12), 0 0 70px rgba(200,200,255,0.05), inset 0 1px 0 rgba(255,255,255,0.12)' }}>
+            <div className="absolute top-0 inset-x-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.6),transparent)' }} />
+            <div className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ background: 'linear-gradient(135deg,rgba(255,255,255,0.06) 0%,transparent 50%)' }} />
+
+            <span className="text-[8px] font-black uppercase tracking-[0.4em] text-white/60">★ 2nd Prize ★</span>
+            <div className="w-10 h-px my-0.5" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)' }} />
+
+            <span className="text-[8px] uppercase tracking-wider text-white/30 mt-1">Cash · Direct Wire</span>
+
+            <div className="w-full h-px my-1" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)' }} />
+
+            <span className="font-black leading-none tabular-nums"
+              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2rem,5vw,2.8rem)', color: '#fff', textShadow: '0 0 30px rgba(255,255,255,0.8), 0 0 60px rgba(200,220,255,0.4), 0 2px 0 rgba(0,0,0,0.9)' }}>
+              $20,000
+            </span>
+            <span className="text-[8px] uppercase tracking-wider text-white/30">wired to winner</span>
           </div>
 
           {/* Daily Prize */}
-          <div className="relative overflow-hidden p-5 text-center flex flex-col items-center gap-1.5"
-            style={{ background: 'linear-gradient(160deg,#0e0a00,#1f1400)', border: '1px solid rgba(212,175,55,0.7)', boxShadow: '0 0 28px rgba(212,175,55,0.25), inset 0 0 20px rgba(212,175,55,0.06)' }}>
-            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg,rgba(212,175,55,0.14) 0%,transparent 60%)' }} />
-            <span className="text-[9px] font-black uppercase tracking-[0.35em] text-[var(--gold)] opacity-90">Daily Prize</span>
-            <span className="text-[9px] uppercase tracking-wider text-[var(--gold)] opacity-50">Starts Jul 31, 2026</span>
-            <div className="w-full h-px bg-[var(--gold)] opacity-30 my-1" />
-            <span className="font-black leading-none" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2rem, 5vw, 2.6rem)', background: 'linear-gradient(180deg,#F0D060,#D4AF37)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.8))' }}>$1,000</span>
-            <span className="font-black text-[var(--gold)] text-sm opacity-80">× 90 days</span>
+          <div className="relative overflow-hidden p-5 text-center flex flex-col items-center gap-2"
+            style={{ background: 'linear-gradient(170deg,#0e0800 0%,#221400 60%,#0e0800 100%)', border: '1px solid #D4AF37', boxShadow: '0 0 45px rgba(212,175,55,0.45), 0 0 90px rgba(212,175,55,0.18), inset 0 1px 0 rgba(255,220,80,0.25)', animation: 'pulse-gold 2.5s ease-in-out infinite' }}>
+            <div className="absolute top-0 inset-x-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,220,80,1),transparent)' }} />
+            <div className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ background: 'linear-gradient(135deg,rgba(255,200,40,0.18) 0%,transparent 55%)' }} />
+
+            <span className="text-[8px] font-black uppercase tracking-[0.4em]" style={{ color: '#FFD060' }}>🔥 Daily Prize 🔥</span>
+            <div className="w-10 h-px my-0.5" style={{ background: 'linear-gradient(90deg,transparent,#D4AF37,transparent)' }} />
+
+            <span className="text-[8px] uppercase tracking-wider" style={{ color: 'rgba(255,200,60,0.6)' }}>Every Day · Jul 31 →</span>
+
+            <div className="w-full h-px my-1" style={{ background: 'linear-gradient(90deg,transparent,rgba(212,175,55,0.5),transparent)' }} />
+
+            <span className="font-black leading-none tabular-nums"
+              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2rem,5vw,2.8rem)', background: 'linear-gradient(180deg,#FFE566 0%,#FFB800 50%,#C47F00 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 0 16px rgba(255,180,0,1)) drop-shadow(0 0 32px rgba(255,140,0,0.8))' }}>
+              $1,000
+            </span>
+            <span className="font-black text-sm" style={{ color: '#D4AF37' }}>× 90 days</span>
           </div>
         </div>
+
+        <style>{`
+          @keyframes pulse-gold {
+            0%, 100% { box-shadow: 0 0 45px rgba(212,175,55,0.45), 0 0 90px rgba(212,175,55,0.18), inset 0 1px 0 rgba(255,220,80,0.25); }
+            50% { box-shadow: 0 0 60px rgba(212,175,55,0.65), 0 0 120px rgba(255,180,0,0.3), inset 0 1px 0 rgba(255,220,80,0.4); }
+          }
+        `}</style>
 
         {/* Milestone progress — % only, no amounts */}
         <div className="w-full max-w-lg mx-auto mb-10">
@@ -655,10 +692,6 @@ function PrizesSection() {
                 <p className="text-[var(--gold)] text-base font-black opacity-70 tracking-widest uppercase">× 90 Consecutive Days</p>
               </div>
 
-              <div className="sm:ml-auto flex flex-col items-start sm:items-end gap-1 shrink-0">
-                <span className="text-[var(--gold)] font-black text-3xl opacity-60" style={{ fontFamily: 'var(--font-dm-mono)' }}>$90,000</span>
-                <span className="text-[var(--gold)] text-[10px] uppercase tracking-wider opacity-40">Total Giveaway Pool</span>
-              </div>
             </div>
 
             <div className="h-px bg-[var(--gold)] opacity-15 relative z-10" />
