@@ -952,6 +952,258 @@ function TeaserGrid({ tickets }: { tickets: TicketGridItem[] }) {
   )
 }
 
+// ─── TICKET PICKER ────────────────────────────────────────────────────────────
+
+function TicketPicker({ tickets, onSelect }: { tickets: TicketGridItem[]; onSelect: (n: number) => void }) {
+  const [mode, setMode] = useState<'idle' | 'manual' | 'random'>('idle')
+  const [manualInput, setManualInput] = useState('')
+  const [checking, setChecking] = useState(false)
+  const [checkResult, setCheckResult] = useState<{ available: boolean } | null>(null)
+  const [spinning, setSpinning] = useState(false)
+  const [spinDisplay, setSpinDisplay] = useState<number | null>(null)
+  const [confirmed, setConfirmed] = useState<number | null>(null)
+  const [reserving, setReserving] = useState(false)
+  const [sessionId] = useState(() => Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2))
+  const spinRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const availableTickets = tickets.filter((t) => t.status === 'available')
+
+  const checkManual = useCallback(async (val: string) => {
+    const displayNum = parseInt(val, 10)
+    if (isNaN(displayNum) || displayNum < 0 || displayNum > 999) { setCheckResult(null); return }
+    setChecking(true)
+    try {
+      const res = await fetch(`/api/tickets/check?number=${displayNum + 1}&session_id=${sessionId}`)
+      const data = await res.json() as { available: boolean }
+      setCheckResult(data)
+    } catch { setCheckResult(null) }
+    setChecking(false)
+  }, [sessionId])
+
+  useEffect(() => {
+    if (mode !== 'manual') return
+    setCheckResult(null)
+    const timer = setTimeout(() => checkManual(manualInput), 500)
+    return () => clearTimeout(timer)
+  }, [manualInput, mode, checkManual])
+
+  const startSpin = () => {
+    if (availableTickets.length === 0) return
+    setSpinDisplay(null)
+    setSpinning(true)
+    if (spinRef.current) clearInterval(spinRef.current)
+
+    const target = availableTickets[Math.floor(Math.random() * availableTickets.length)]
+    let elapsed = 0
+    const totalDuration = 2600
+    let intervalMs = 80
+
+    const step = () => {
+      elapsed += intervalMs
+      if (elapsed >= totalDuration) {
+        if (spinRef.current) clearInterval(spinRef.current)
+        spinRef.current = null
+        setSpinDisplay(target.number - 1)
+        setSpinning(false)
+        return
+      }
+      if (elapsed > totalDuration - 900) intervalMs = 220
+      const rand = availableTickets[Math.floor(Math.random() * availableTickets.length)]
+      setSpinDisplay(rand.number - 1)
+    }
+    spinRef.current = setInterval(step, intervalMs)
+  }
+
+  useEffect(() => () => { if (spinRef.current) clearInterval(spinRef.current) }, [])
+
+  const confirmSelection = async (internalNum: number) => {
+    setReserving(true)
+    try {
+      const res = await fetch('/api/tickets/reserve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ number: internalNum, session_id: sessionId }),
+      })
+      const data = await res.json() as { success: boolean; error?: string }
+      if (!data.success) {
+        alert(data.error ?? 'Could not reserve this number. Please try another.')
+        setCheckResult(null)
+        setSpinDisplay(null)
+        setReserving(false)
+        return
+      }
+      setConfirmed(internalNum)
+      onSelect(internalNum)
+      setTimeout(() => {
+        document.getElementById('buy-form-fields')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 350)
+    } catch {
+      alert('Connection error. Please try again.')
+    }
+    setReserving(false)
+  }
+
+  const reset = () => {
+    setConfirmed(null)
+    setSpinDisplay(null)
+    setCheckResult(null)
+    setManualInput('')
+    setMode('idle')
+    onSelect(0 as unknown as number)
+  }
+
+  if (confirmed) {
+    return (
+      <div className="text-center py-4">
+        <div
+          className="inline-flex flex-col items-center gap-2 border-2 border-[var(--gold)] px-10 py-6 mb-4"
+          style={{ background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.08) 0%, transparent 70%)' }}
+        >
+          <span className="text-[10px] uppercase tracking-[0.4em] text-[var(--gold)] font-bold">Your Ticket Number</span>
+          <span
+            className="font-black"
+            style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(3.5rem, 10vw, 5.5rem)', color: 'var(--gold)', textShadow: '0 0 40px rgba(212,175,55,0.7)' }}
+          >
+            #{String(confirmed - 1).padStart(3, '0')}
+          </span>
+          <span className="text-white/35 text-xs uppercase tracking-widest">Reserved · 15-minute hold</span>
+        </div>
+        <button
+          onClick={reset}
+          className="text-white/25 text-xs hover:text-white/50 uppercase tracking-widest transition-colors"
+        >
+          ← Choose a different number
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        {([
+          { key: 'manual', icon: '🎯', label: 'Choose My Number' },
+          { key: 'random', icon: '🎲', label: 'Surprise Me' },
+        ] as const).map(({ key, icon, label }) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => { setMode(key); setSpinDisplay(null); setManualInput(''); setCheckResult(null) }}
+            className={[
+              'py-4 border-2 text-sm font-black uppercase tracking-widest transition-all',
+              mode === key
+                ? 'border-[var(--gold)] bg-[rgba(201,168,76,0.15)] text-[var(--gold)]'
+                : 'border-[var(--black-border)] text-white/40 hover:border-[rgba(201,168,76,0.5)]',
+            ].join(' ')}
+          >
+            {icon} {label}
+          </button>
+        ))}
+      </div>
+
+      {mode === 'manual' && (
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="block text-[10px] text-white/40 uppercase tracking-widest font-bold mb-2">
+              Enter a number between 000 and 999
+            </label>
+            <input
+              type="number"
+              min={0}
+              max={999}
+              value={manualInput}
+              onChange={(e) => setManualInput(e.target.value)}
+              placeholder="e.g. 042"
+              className="w-full bg-[var(--black)] border border-[var(--black-border)] px-4 py-4 text-white text-center font-black focus:outline-none focus:border-[var(--gold)] transition-colors"
+              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2rem, 8vw, 3rem)' }}
+            />
+          </div>
+          {checking && (
+            <p className="text-white/35 text-xs uppercase tracking-wider text-center animate-pulse">Checking availability…</p>
+          )}
+          {!checking && checkResult && manualInput !== '' && (
+            checkResult.available ? (
+              <div className="text-center">
+                <p className="text-[var(--gold)] font-black uppercase tracking-wider text-sm mb-4">✓ Available!</p>
+                <button
+                  type="button"
+                  disabled={reserving}
+                  onClick={() => confirmSelection(parseInt(manualInput, 10) + 1)}
+                  className="w-full py-4 font-black uppercase tracking-widest text-black text-sm transition-all hover:opacity-90 disabled:opacity-40"
+                  style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A, #C9A84C)' }}
+                >
+                  {reserving ? 'Reserving…' : `Reserve #${String(parseInt(manualInput, 10)).padStart(3, '0')}`}
+                </button>
+              </div>
+            ) : (
+              <p className="text-[#FF4E00] font-black uppercase tracking-wider text-sm text-center">✗ Already taken — try another number</p>
+            )
+          )}
+        </div>
+      )}
+
+      {mode === 'random' && (
+        <div className="flex flex-col items-center gap-5">
+          <div
+            className="w-full max-w-xs border-2 border-[var(--gold)] flex items-center justify-center py-10"
+            style={{ background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.07) 0%, transparent 70%)' }}
+          >
+            {spinDisplay !== null ? (
+              <span
+                className="font-black transition-colors duration-300"
+                style={{
+                  fontFamily: 'var(--font-dm-mono)',
+                  fontSize: 'clamp(3.5rem, 12vw, 5.5rem)',
+                  color: spinning ? 'rgba(212,175,55,0.5)' : 'var(--gold)',
+                  textShadow: spinning ? 'none' : '0 0 40px rgba(212,175,55,0.7)',
+                }}
+              >
+                #{String(spinDisplay).padStart(3, '0')}
+              </span>
+            ) : (
+              <span className="text-white/15 font-black" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(3.5rem, 12vw, 5.5rem)' }}>
+                ???
+              </span>
+            )}
+          </div>
+
+          {!spinning && spinDisplay === null && (
+            <button
+              type="button"
+              onClick={startSpin}
+              className="w-full max-w-xs py-4 font-black uppercase tracking-widest text-black text-sm transition-all hover:scale-105 active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A, #C9A84C)' }}
+            >
+              🎲 Spin the Wheel
+            </button>
+          )}
+
+          {spinning && (
+            <p className="text-white/35 text-xs uppercase tracking-widest animate-pulse">Drawing your lucky number…</p>
+          )}
+
+          {!spinning && spinDisplay !== null && (
+            <div className="flex flex-col items-center gap-3 w-full max-w-xs">
+              <button
+                type="button"
+                disabled={reserving}
+                onClick={() => confirmSelection(spinDisplay + 1)}
+                className="w-full py-4 font-black uppercase tracking-widest text-black text-sm transition-all hover:opacity-90 disabled:opacity-40"
+                style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A, #C9A84C)' }}
+              >
+                {reserving ? 'Reserving…' : `Yes! Lock in #${String(spinDisplay).padStart(3, '0')}`}
+              </button>
+              <button type="button" onClick={startSpin} className="text-white/30 text-xs uppercase tracking-widest hover:text-white/55 transition-colors">
+                Spin again →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── BUY FORM ─────────────────────────────────────────────────────────────────
 
 // ─── DAILY NUMBERS ────────────────────────────────────────────────────────────
@@ -1278,7 +1530,7 @@ function FloatingWhatsApp() {
   )
 }
 
-function BuyForm() {
+function BuyForm({ selectedTicket }: { selectedTicket: number | null }) {
   const [paymentMethod, setPaymentMethod] = useState<'zelle' | 'stripe'>('zelle')
   const [signature, setSignature] = useState('')
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
@@ -1315,7 +1567,7 @@ function BuyForm() {
     if (data.payment_method === 'zelle' && !receiptFile) { setSubmitError('Please upload your Zelle receipt.'); return }
     setSubmitting(true)
     try {
-      const payload = { ...data, signature_data: signature }
+      const payload = { ...data, signature_data: signature, preferred_ticket_number: selectedTicket ?? undefined }
       const res = await fetch('/api/purchase/intent', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       if (!res.ok) { const e = await res.json() as { error?: string }; throw new Error(e.error ?? 'Failed') }
       const result = await res.json() as { stripe_client_secret?: string; payment_id?: string }
@@ -1332,7 +1584,7 @@ function BuyForm() {
       }
       // Push contact event to Highlead.us browser tracker
       try {
-        const lcTracking = (window as Record<string, unknown>)._lcTracking as { tracker?: { submitForm?: (d: unknown) => void } } | undefined
+        const lcTracking = ((window as unknown) as Record<string, unknown>)._lcTracking as { tracker?: { submitForm?: (d: unknown) => void } } | undefined
         lcTracking?.tracker?.submitForm?.({
           first_name: data.first_name,
           last_name: data.last_name,
@@ -1376,7 +1628,25 @@ function BuyForm() {
         onClose={() => setTermsOpen(false)}
       />
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5" id="buy-form-fields">
+        {/* Selected ticket badge */}
+        {selectedTicket && (
+          <div
+            className="flex items-center justify-between border border-[var(--gold)] px-5 py-4"
+            style={{ background: 'rgba(212,175,55,0.07)' }}
+          >
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-[var(--gold)] font-bold">Your Ticket</p>
+              <p className="font-black text-white text-xl" style={{ fontFamily: 'var(--font-dm-mono)' }}>
+                #{String(selectedTicket - 1).padStart(3, '0')}
+              </p>
+            </div>
+            <div className="text-xs text-white/30 text-right">
+              <p>Reserved</p>
+              <p>15 min hold</p>
+            </div>
+          </div>
+        )}
         {/* Names */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="First Name" error={errors.first_name?.message} required>
@@ -1575,6 +1845,7 @@ export default function HomePage() {
   const [available, setAvailable] = useState<number | null>(null)
   const [tickets, setTickets] = useState<TicketGridItem[]>([])
   const [showPromo, setShowPromo] = useState(false)
+  const [selectedTicket, setSelectedTicket] = useState<number | null>(null)
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -1619,6 +1890,8 @@ export default function HomePage() {
       <DailyNumbers />
       <CheckWinner />
 
+      {tickets.length > 0 && <TeaserGrid tickets={tickets} />}
+
       {/* Buy Ticket */}
       <section id="buy-form" className="py-20 px-4" style={{ background: '#0d0d0d' }}>
         <div className="max-w-2xl mx-auto">
@@ -1640,13 +1913,35 @@ export default function HomePage() {
               {available !== null ? available : '…'} spots remaining
             </p>
           </div>
+
+          {/* Step 1: Pick a ticket number */}
+          <div className="border border-[var(--black-border)] bg-[var(--black-card)] p-6 md:p-8 mb-6">
+            <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--gold)] font-bold mb-6 flex items-center gap-3">
+              <span
+                className="w-5 h-5 rounded-full border border-[var(--gold)] inline-flex items-center justify-center shrink-0"
+                style={{ fontSize: '10px' }}
+              >1</span>
+              Choose Your Ticket Number
+            </p>
+            <TicketPicker
+              tickets={tickets}
+              onSelect={(n) => setSelectedTicket(n > 0 ? n : null)}
+            />
+          </div>
+
+          {/* Step 2: Personal info + payment */}
           <div className="border border-[var(--black-border)] bg-[var(--black-card)] p-6 md:p-10">
-            <BuyForm />
+            <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--gold)] font-bold mb-6 flex items-center gap-3">
+              <span
+                className="w-5 h-5 rounded-full border border-[var(--gold)] inline-flex items-center justify-center shrink-0"
+                style={{ fontSize: '10px' }}
+              >2</span>
+              Your Information &amp; Payment
+            </p>
+            <BuyForm selectedTicket={selectedTicket} />
           </div>
         </div>
       </section>
-
-      {tickets.length > 0 && <TeaserGrid tickets={tickets} />}
 
       {/* Pre-footer CTA */}
       <section className="py-16 px-4 text-center" style={{ background: 'radial-gradient(ellipse at center, #1a1200 0%, #0A0A0A 70%)' }}>

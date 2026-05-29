@@ -17,6 +17,7 @@ const intentSchema = z.object({
   nationality: z.string().min(1).max(100).trim(),
   gender: z.enum(['male', 'female', 'other', 'prefer_not']),
   ref_code: z.string().max(20).trim().optional(),
+  preferred_ticket_number: z.number().int().min(1).max(1000).optional(),
   payment_method: z.enum(['zelle', 'stripe']),
   signature_data: z.string().min(10), // base64 PNG
   agreed_terms: z.literal(true),
@@ -165,6 +166,7 @@ export async function POST(req: NextRequest) {
       payment_method: data.payment_method,
       payment_id: payment.id,
       ref_code: data.ref_code ?? '',
+      preferred_ticket_number: data.preferred_ticket_number ? String(data.preferred_ticket_number) : '',
     },
   })
   notifyGHL('purchase_intent', {
