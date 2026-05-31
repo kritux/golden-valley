@@ -60,21 +60,19 @@ function SignInInner() {
     let email = identifier.trim()
 
     if (!isEmail) {
-      // Strip non-digits and build E.164 to look up the profile's email
-      const digits = identifier.replace(/\D/g, '')
-      const e164 = digits.startsWith('1') ? `+${digits}` : `+1${digits}`
-      // Look up email by phone from profiles
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('phone', e164)
-        .maybeSingle() as { data: { email: string } | null; error: unknown }
-      if (!profile?.email) {
+      // Server-side lookup — uses service role to bypass RLS
+      const res = await fetch('/api/auth/phone-lookup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: identifier.trim() }),
+      })
+      const result = await res.json() as { email?: string; error?: string }
+      if (!res.ok || !result.email) {
         setError('No account found with that phone number.')
         setLoading(false)
         return
       }
-      email = profile.email
+      email = result.email
     }
 
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password })

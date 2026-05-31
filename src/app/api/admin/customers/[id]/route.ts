@@ -47,7 +47,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ error: 'Nothing to update' }, { status: 400 })
   }
 
-  // Prevent setting role to admin via this endpoint
   if (updates.role === 'admin') {
     return NextResponse.json({ error: 'Cannot assign admin role via this endpoint' }, { status: 400 })
   }
@@ -65,12 +64,39 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   if (!await assertAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const admin = await createAdminClient()
+  const userId = params.id
 
-  // Delete auth user — this cascades to profiles via DB trigger
-  const { error } = await admin.auth.admin.deleteUser(params.id)
-  if (error) {
-    console.error('[admin/customers DELETE]', error.message)
-    return NextResponse.json({ error: 'Failed to delete user: ' + error.message }, { status: 500 })
+  // Delete in FK-safe order to avoid RESTRICT violations:
+  // commissions + prize_pool cascade automatically when tickets/payments are deleted
+
+  const { error: ticketsErr } = await admin
+    .from('tickets')
+    .delete()
+    .eq('buyer_id', userId)
+
+  if (ticketsErr) {
+    console.error('[DELETE customer] tickets:', ticketsErr.message)
+    return NextResponse.json({ error: 'Failed to delete customer tickets' }, { status: 500 })
+  }
+
+  const { error: paymentsErr } = await admin
+    .from('payments')
+    .delete()
+    .eq('buyer_id', userId)
+
+  if (paymentsErr) {
+    console.error('[DELETE customer] payments:', paymentsErr.message)
+    return NextResponse.json({ error: 'Failed to delete customer payments' }, { status: 500 })
+  }
+
+  // Delete profile explicitly (no delete trigger exists)
+  await admin.from('profiles').delete().eq('id', userId)
+
+  // Delete auth user
+  const { error: authErr } = await admin.auth.admin.deleteUser(userId)
+  if (authErr) {
+    console.error('[DELETE customer] auth:', authErr.message)
+    return NextResponse.json({ error: 'Failed to delete auth user: ' + authErr.message }, { status: 500 })
   }
 
   return NextResponse.json({ ok: true })
