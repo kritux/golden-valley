@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     to: process.env.ADMIN_NOTIFICATION_EMAIL ?? 'admin@goldenvalleymembers.com',
     subject: '🏆 [URGENT] Golden Valley — Ticket #1,000 Sold! Draw Required!',
     html: `
-      <h1 style="color: #C9A84C;">Ticket #1,000 Has Been Sold!</h1>
+      <h1 style="color: #D4AF37;">Ticket #1,000 Has Been Sold!</h1>
       <p>All 1,000 tickets are now confirmed. You must conduct the draw immediately.</p>
       <p><strong>Prize Pool Total:</strong> $${(poolTotal ?? 0).toFixed(2)}</p>
       <p><a href="${process.env.NEXT_PUBLIC_APP_URL ?? ''}/admin">Go to Admin Dashboard →</a></p>

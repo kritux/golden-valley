@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { GoldButton } from '@/components/ui/gold-button'
 
@@ -42,6 +43,17 @@ export default function LoginPage() {
 
   return (
     <div className="w-full max-w-md">
+      {/* Back to home */}
+      <div className="mb-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-[var(--white-muted)] hover:text-[var(--gold)] text-xs uppercase tracking-widest transition-colors"
+        >
+          <span>←</span>
+          <span>Back to Home</span>
+        </Link>
+      </div>
+
       {/* Logo */}
       <div className="text-center mb-10">
         <h1

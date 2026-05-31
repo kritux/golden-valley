@@ -25,13 +25,20 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       zelle_confirmed_at: new Date().toISOString(),
     })
     .eq('id', paymentId)
-    .eq('status', 'under_review')
-    .select('id, buyer_id, profiles(email, first_name, last_name)')
+    .in('status', ['pending', 'under_review'])
+    .select('id, buyer_id')
     .single()
 
   if (error || !payment) {
-    return NextResponse.json({ error: 'Payment not found or not in under_review status' }, { status: 404 })
+    return NextResponse.json({ error: 'Payment not found or already processed' }, { status: 404 })
   }
+
+  // Fetch buyer profile separately
+  const { data: profileData } = await adminClient
+    .from('profiles')
+    .select('email, first_name, last_name')
+    .eq('id', payment.buyer_id)
+    .single() as { data: { email: string; first_name: string; last_name: string } | null }
 
   // Activate ticket atomically via DB function
   const { data: activationData, error: activationError } = await adminClient
@@ -44,7 +51,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { ticket_number } = activationData as { ticket_number: number; ticket_id: string }
 
   // Send receipt email
-  const profileData = payment.profiles as { email: string; first_name: string; last_name: string } | null
   if (profileData) {
     await sendReceiptEmail({
       to: profileData.email,

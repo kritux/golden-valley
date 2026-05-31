@@ -58,7 +58,7 @@ function WinnersHeader() {
         <Link href="/" className="flex items-center gap-2.5 group">
           <div
             className="w-8 h-8 flex items-center justify-center font-black text-xs tracking-widest text-black shrink-0"
-            style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A)' }}
+            style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A)' }}
           >
             GV
           </div>
@@ -78,7 +78,7 @@ function WinnersHeader() {
           <Link
             href="/#buy-form"
             className="hidden sm:flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-black px-4 py-2"
-            style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A)' }}
+            style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A)' }}
           >
             Buy Ticket
           </Link>
@@ -105,13 +105,13 @@ export default function WinnersPage() {
   const hasWinners = WINNERS.some((w) => w.announced)
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
+    <div className="min-h-screen bg-[#0B0B0B]">
       <WinnersHeader />
 
       {/* Page hero */}
       <section
         className="py-20 px-4 text-center relative overflow-hidden"
-        style={{ background: 'radial-gradient(ellipse at top, #1a1200 0%, #0A0A0A 60%)' }}
+        style={{ background: 'radial-gradient(ellipse at top, #1a1200 0%, #0B0B0B 60%)' }}
       >
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden" aria-hidden>
           <span
@@ -134,7 +134,7 @@ export default function WinnersPage() {
             Official<br />
             <span
               style={{
-                background: 'linear-gradient(180deg, #E8CC7A 0%, #C9A84C 50%, #8B6914 100%)',
+                background: 'linear-gradient(180deg, #D4AF37 0%, #D4AF37 50%, #A68B28 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}
@@ -181,7 +181,7 @@ export default function WinnersPage() {
                 >
                   <div
                     className="w-16 h-16 flex items-center justify-center font-black text-xl text-black shrink-0"
-                    style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A)' }}
+                    style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A)' }}
                   >
                     #{winner.prize}
                   </div>
@@ -277,7 +277,7 @@ export default function WinnersPage() {
                       <div key={item.step} className="flex items-center gap-4">
                         <div
                           className="w-8 h-8 flex items-center justify-center text-[10px] font-black text-black shrink-0"
-                          style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C)' }}
+                          style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37)' }}
                         >
                           {item.step}
                         </div>
@@ -295,7 +295,7 @@ export default function WinnersPage() {
             <Link
               href="/#buy-form"
               className="inline-flex items-center gap-2 font-black uppercase tracking-widest text-black px-10 py-4 text-sm transition-all hover:scale-105"
-              style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A)' }}
+              style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A)' }}
             >
               Get Your Ticket — $500 →
             </Link>

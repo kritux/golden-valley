@@ -6,7 +6,7 @@ const YEAR = new Date().getFullYear()
 
 export function SiteFooter() {
   return (
-    <footer className="bg-[#0A0A0A] border-t border-[var(--black-border)]">
+    <footer className="bg-[#0B0B0B] border-t border-[var(--black-border)]">
       {/* Main footer grid */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
 
@@ -15,7 +15,7 @@ export function SiteFooter() {
           <div className="flex items-center gap-2.5 mb-4">
             <div
               className="w-9 h-9 flex items-center justify-center font-black text-xs tracking-widest text-black shrink-0"
-              style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A)' }}
+              style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A)' }}
             >
               GV
             </div>

@@ -7,6 +7,7 @@ import { notifyGHL } from '@/lib/ghl'
 
 const createSellerSchema = z.object({
   email: z.string().email().toLowerCase().trim(),
+  password: z.string().min(8).max(72),
   first_name: z.string().min(1).max(50).trim(),
   last_name: z.string().min(1).max(50).trim(),
   phone: z.string().min(7).max(20).trim(),
@@ -63,10 +64,9 @@ export async function POST(req: NextRequest) {
   }
 
   // Create auth user for seller
-  const tempPassword = Math.random().toString(36).slice(2, 12) + 'A1!'
   const { data: { user }, error: authError } = await adminClient.auth.admin.createUser({
     email: data.email,
-    password: tempPassword,
+    password: data.password,
     email_confirm: true,
     user_metadata: { first_name: data.first_name, last_name: data.last_name, phone: data.phone, role: 'seller' },
   })
@@ -106,6 +106,8 @@ export async function POST(req: NextRequest) {
     sellerName: `${data.first_name} ${data.last_name}`,
     referralCode,
     loginUrl,
+    loginEmail: data.email,
+    loginPassword: data.password,
   }).catch(() => null)
 
   notifyGHL('seller_created', { seller_id: seller.id, seller_email: data.email, referral_code: referralCode })

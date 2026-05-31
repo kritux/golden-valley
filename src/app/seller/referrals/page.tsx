@@ -72,8 +72,8 @@ function SaleCard({ commission }: { commission: ReferralCommission }) {
             @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400&display=swap');
             * { box-sizing: border-box; margin: 0; padding: 0; }
             body {
-              background: #0A0A0A;
-              color: #F5F0E8;
+              background: #0B0B0B;
+              color: #FFFFFF;
               font-family: 'DM Sans', sans-serif;
               display: flex;
               align-items: center;
@@ -96,7 +96,7 @@ function SaleCard({ commission }: { commission: ReferralCommission }) {
               margin-bottom: 6px;
             }
             .print-card .sub {
-              color: #A89F8F;
+              color: #A0A0A0;
               font-size: 12px;
               text-transform: uppercase;
               letter-spacing: 0.12em;
@@ -119,10 +119,10 @@ function SaleCard({ commission }: { commission: ReferralCommission }) {
             }
             .print-card .info {
               font-size: 13px;
-              color: #A89F8F;
+              color: #A0A0A0;
               margin-top: 4px;
             }
-            .print-card .info strong { color: #F5F0E8; }
+            .print-card .info strong { color: #FFFFFF; }
           </style>
         </head>
         <body>

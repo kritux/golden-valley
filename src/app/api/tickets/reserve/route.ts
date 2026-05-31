@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
   const { number, session_id } = parsed.data
 
-  if (isReservedByOther(number, session_id)) {
+  if (await isReservedByOther(number, session_id)) {
     return NextResponse.json({ success: false, error: 'This ticket is currently held by another user. Please choose a different number.' })
   }
 
@@ -33,6 +33,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: 'This ticket has already been sold. Please choose another number.' })
   }
 
-  const { expiresAt } = reserveTicket(number, session_id)
+  const { expiresAt } = await reserveTicket(number, session_id)
   return NextResponse.json({ success: true, reserved_until: new Date(expiresAt).toISOString() })
 }

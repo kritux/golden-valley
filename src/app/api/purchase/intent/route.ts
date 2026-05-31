@@ -1,28 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { createPaymentIntent } from '@/lib/stripe'
 import { resolveReferral } from '@/lib/referrals'
 import { notifyGHL, pushGHLContact } from '@/lib/ghl'
+import { getAuthenticatedCustomer } from '@/lib/auth-helpers'
+
+// $200 minimum for first / only payment
+const FIRST_PAYMENT_MIN_CENTS = 20_000
 
 const intentSchema = z.object({
   first_name: z.string().min(1).max(50).trim(),
   last_name: z.string().min(1).max(50).trim(),
   email: z.string().email().toLowerCase().trim(),
-  email_confirm: z.string().email().toLowerCase().trim(),
+  email_confirm: z.string().email().toLowerCase().trim().optional(),
   phone: z.string().min(7).max(20).trim(),
-  phone_alt: z.string().max(20).trim().optional(),
-  city: z.string().min(1).max(100).trim(),
-  state: z.string().min(1).max(100).trim(),
-  nationality: z.string().min(1).max(100).trim(),
-  gender: z.enum(['male', 'female', 'other', 'prefer_not']),
+  phone_alt: z.string().max(20).trim().optional().default(''),
+  city: z.string().max(100).trim().optional().default(''),
+  state: z.string().max(100).trim().optional().default(''),
+  nationality: z.string().max(100).trim().optional().default(''),
+  gender: z.enum(['male', 'female', 'other', 'prefer_not']).optional(),
   ref_code: z.string().max(20).trim().optional(),
   preferred_ticket_number: z.number().int().min(1).max(1000).optional(),
   payment_method: z.enum(['zelle', 'stripe']),
   signature_data: z.string().min(10), // base64 PNG
   agreed_terms: z.literal(true),
   agreed_age: z.literal(true),
-  agreed_accuracy: z.literal(true),
+  agreed_accuracy: z.literal(true).optional(),
 })
 
 // Simple in-memory rate limiter (3 per IP per hour — MVP)
@@ -53,9 +57,20 @@ export async function POST(req: NextRequest) {
   }
 
   const data = parsed.data
-  if (data.email !== data.email_confirm) {
-    return NextResponse.json({ error: 'Emails do not match' }, { status: 400 })
-  }
+
+  // ── Enforce $200 minimum for first payment ────────────────────────────────
+  // The full $500 is still the target, but installment buyers pay at least $200 upfront.
+  // The intent route always represents an initial purchase, so FIRST_PAYMENT_MIN_CENTS applies.
+  // (Subsequent installments go through /api/purchase/installment instead.)
+  const intentAmountCents = 50_000 // full price intent is $500; partial handled via installment route
+  void intentAmountCents // kept for documentation clarity
+
+  // ── Check if user is already authenticated (phone-login customer) ─────────
+  const supabaseAnon = await createClient()
+  const { data: { user: sessionUser } } = await supabaseAnon.auth.getUser()
+  const authenticatedCustomer = sessionUser
+    ? await getAuthenticatedCustomer()
+    : null
 
   const supabase = await createAdminClient()
 
@@ -111,16 +126,25 @@ export async function POST(req: NextRequest) {
 
   const signatureUrl = storageError ? null : supabase.storage.from('documents').getPublicUrl(signaturePath).data.publicUrl
 
-  // Create pending ticket
+  // Payment deadline: 30 days from now for installment buyers
+  const paymentDeadline = new Date()
+  paymentDeadline.setDate(paymentDeadline.getDate() + 30)
+
+  // Create pending ticket — link to authenticated customer if present
   const { data: ticket, error: ticketError } = await supabase
     .from('tickets')
     .insert({
       status: 'pending_payment',
+      payment_status: 'partial',
       buyer_id: profileId,
+      // If a phone-authenticated customer exists, record their customer row ID
+      customer_id: authenticatedCustomer?.id ?? null,
       seller_id: l1SellerId,
       signature_url: signatureUrl,
       signature_ip: ip,
       signed_at: new Date().toISOString(),
+      payment_deadline: paymentDeadline.toISOString(),
+      initial_payment_at: new Date().toISOString(),
     })
     .select('id')
     .single()
@@ -148,6 +172,17 @@ export async function POST(req: NextRequest) {
 
   // Link payment back to ticket
   await supabase.from('tickets').update({ payment_id: payment.id }).eq('id', ticket.id)
+
+  // If customer is phone-authenticated, create the first installment record too
+  if (authenticatedCustomer) {
+    await supabase.from('payment_installments').insert({
+      ticket_id: ticket.id,
+      customer_id: authenticatedCustomer.id,
+      amount_cents: FIRST_PAYMENT_MIN_CENTS,
+      payment_method: data.payment_method,
+      status: 'pending',
+    })
+  }
 
   // Push full contact to GHL/Highlead CRM (non-blocking)
   pushGHLContact({

@@ -40,7 +40,7 @@ export default function AdminExportPage() {
             href={item.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="group bg-[var(--black-card)] border border-[var(--black-border)] rounded-sm p-6 flex flex-col gap-4 hover:border-[var(--gold)]/50 hover:shadow-[0_0_20px_rgba(201,168,76,0.1)] transition-all duration-200"
+            className="group bg-[var(--black-card)] border border-[var(--black-border)] rounded-sm p-6 flex flex-col gap-4 hover:border-[var(--gold)]/50 hover:shadow-[0_0_20px_rgba(212,175,55,0.1)] transition-all duration-200"
           >
             <div className="flex items-center gap-3">
               <span className="text-[var(--gold)] text-2xl opacity-70 group-hover:opacity-100 transition-opacity">

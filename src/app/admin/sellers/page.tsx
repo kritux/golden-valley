@@ -14,9 +14,11 @@ export default function AdminSellersPage() {
     first_name: '',
     last_name: '',
     email: '',
+    password: '',
     phone: '',
     recruiter_seller_id: '',
   })
+  const [showPassword, setShowPassword] = useState(false)
 
   const fetchSellers = useCallback(async () => {
     setLoading(true)
@@ -35,6 +37,7 @@ export default function AdminSellersPage() {
 
     const body: Record<string, string> = {
       email: form.email,
+      password: form.password,
       first_name: form.first_name,
       last_name: form.last_name,
       phone: form.phone,
@@ -55,7 +58,7 @@ export default function AdminSellersPage() {
     }
 
     setShowModal(false)
-    setForm({ first_name: '', last_name: '', email: '', phone: '', recruiter_seller_id: '' })
+    setForm({ first_name: '', last_name: '', email: '', password: '', phone: '', recruiter_seller_id: '' })
     await fetchSellers()
     setCreateLoading(false)
   }
@@ -199,6 +202,27 @@ export default function AdminSellersPage() {
                   className={inputCls}
                   placeholder="john@example.com"
                 />
+              </Field>
+
+              <Field label="Password">
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    minLength={8}
+                    value={form.password}
+                    onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                    className={`${inputCls} pr-16`}
+                    placeholder="Min. 8 characters"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--white-muted)] hover:text-[var(--white)] text-xs uppercase tracking-widest"
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
               </Field>
 
               <Field label="Phone">

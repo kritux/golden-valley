@@ -46,9 +46,12 @@ export async function processCommissions(
 
   await supabase.from('prize_pool').insert({ ticket_id: ticketId, payment_id: paymentId, amount: POOL_CONTRIBUTION })
 
+  // Increment total_sales by 1 (the previous code incorrectly set it to a Promise object)
+  const { data: current } = await supabase
+    .from('sellers').select('total_sales').eq('id', seller.id).single()
   await supabase
     .from('sellers')
-    .update({ total_sales: supabase.rpc('total_sales', {}) })
+    .update({ total_sales: (current?.total_sales ?? 0) + 1 })
     .eq('id', seller.id)
 }
 

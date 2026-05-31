@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { GoldSpinner } from '@/components/ui/gold-button'
 import { SignatureCanvasComponent } from '@/components/ui/signature-canvas'
 import { FileUpload } from '@/components/ui/file-upload'
@@ -12,28 +13,16 @@ import type { TicketGridItem } from '@/types'
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
-const purchaseSchema = z
-  .object({
-    first_name: z.string().min(1, 'Required'),
-    last_name: z.string().min(1, 'Required'),
-    email: z.string().email('Invalid email'),
-    email_confirm: z.string().email('Invalid email'),
-    phone: z.string().min(10, 'Enter a valid phone number'),
-    phone_alt: z.string().optional(),
-    city: z.string().min(1, 'Required'),
-    state: z.string().min(1, 'Required'),
-    nationality: z.string().min(1, 'Required'),
-    gender: z.enum(['male', 'female', 'other', 'prefer_not'], { errorMap: () => ({ message: 'Required' }) }),
-    ref_code: z.string().optional(),
-    payment_method: z.enum(['zelle', 'stripe']),
-    agreed_accuracy: z.literal(true, { errorMap: () => ({ message: 'Required' }) }),
-    agreed_age: z.literal(true, { errorMap: () => ({ message: 'Must be 18+' }) }),
-    agreed_terms: z.literal(true, { errorMap: () => ({ message: 'Must accept terms' }) }),
-  })
-  .refine((d) => d.email === d.email_confirm, {
-    message: 'Emails do not match',
-    path: ['email_confirm'],
-  })
+const purchaseSchema = z.object({
+  first_name: z.string().min(1, 'Required'),
+  last_name: z.string().min(1, 'Required'),
+  email: z.string().email('Invalid email'),
+  phone: z.string().min(10, 'Enter a valid phone number'),
+  ref_code: z.string().optional(),
+  payment_method: z.enum(['zelle', 'stripe']),
+  agreed_age: z.literal(true, { errorMap: () => ({ message: 'Must be 18+' }) }),
+  agreed_terms: z.literal(true, { errorMap: () => ({ message: 'Must accept terms' }) }),
+})
 
 type FormValues = z.infer<typeof purchaseSchema>
 
@@ -108,10 +97,14 @@ function TermsModal({
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
       setScrolledToBottom(false)
       setSignature('')
     }
+    return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
   const handleScroll = () => {
@@ -175,7 +168,7 @@ function TermsModal({
             onClick={() => { if (signature) onAccept(signature) }}
             disabled={!scrolledToBottom || !signature}
             className="flex-1 py-3 font-black uppercase tracking-widest text-black text-xs disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
-            style={{ background: scrolledToBottom && signature ? 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A)' : '#333' }}
+            style={{ background: scrolledToBottom && signature ? 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A)' : '#333' }}
           >
             {!scrolledToBottom ? 'Scroll to Unlock' : !signature ? 'Sign Above First' : 'I Accept & Sign'}
           </button>
@@ -204,10 +197,10 @@ function SiteHeader() {
 
   return (
     <header
-      className="sticky top-8 z-40 w-full transition-all duration-300"
+      className="sticky top-7 z-40 w-full transition-all duration-300"
       style={{
         background: scrolled ? 'rgba(10,10,10,0.97)' : 'rgba(10,10,10,0.75)',
-        borderBottom: '1px solid rgba(201,168,76,0.12)',
+        borderBottom: '1px solid rgba(212,175,55,0.12)',
         backdropFilter: 'blur(14px)',
       }}
     >
@@ -216,7 +209,7 @@ function SiteHeader() {
         <Link href="/" className="flex items-center gap-2.5 group">
           <div
             className="w-8 h-8 flex items-center justify-center font-black text-xs tracking-widest text-black shrink-0"
-            style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A)' }}
+            style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A)' }}
           >
             GV
           </div>
@@ -260,9 +253,9 @@ function SiteHeader() {
           <button
             onClick={() => scrollTo('buy-form')}
             className="hidden sm:flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-black px-4 py-2 transition-all hover:opacity-90"
-            style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A)' }}
+            style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A)' }}
           >
-            Buy Ticket
+            Get My Membership
           </button>
 
           {/* Login */}
@@ -304,7 +297,7 @@ function SiteHeader() {
             { label: 'How It Works', action: () => scrollTo('how-it-works') },
             { label: 'Winners', href: '/winners' },
             { label: 'Ticket Board', href: '/tickets' },
-            { label: 'Buy Ticket — $500', action: () => scrollTo('buy-form'), gold: true },
+            { label: 'Get My Membership', action: () => scrollTo('buy-form'), gold: true },
           ].map((item) => (
             item.href ? (
               <Link
@@ -335,20 +328,11 @@ function SiteHeader() {
 
 function UrgencyBanner({ available }: { available: number | null }) {
   const left = available ?? 1000
-  const sold = 1000 - left
-  const pct = Math.min(100, (sold / 1000) * 100)
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 text-black font-black uppercase" style={{ background: 'linear-gradient(90deg, #8B6914, #D4AF37, #F0D060, #D4AF37, #8B6914)', backgroundSize: '200% auto', animation: 'shimmer 3s linear infinite' }}>
-      <div className="flex items-center justify-center gap-2 sm:gap-5 py-1.5 px-3 text-center flex-wrap text-[10px] sm:text-xs tracking-wider leading-none">
-        <span>🎟️ <span className="text-black/80">ONLY</span> <span className="text-base sm:text-lg leading-none">{left}</span> TICKETS LEFT</span>
-        <span className="opacity-40 hidden sm:inline">·</span>
-        <span className="hidden sm:inline">🔥 $1,000/DAY × 90 DAYS</span>
-        <span className="opacity-40 hidden md:inline">·</span>
-        <span className="hidden md:inline">DRAWING WHEN #1,000 SELLS</span>
-      </div>
-      <div className="h-0.5 bg-black/20">
-        <div className="h-full bg-white/60 transition-all duration-1000" style={{ width: `${Math.max(1, pct)}%` }} />
+    <div className="fixed top-0 left-0 right-0 z-50 text-white font-black uppercase text-center" style={{ background: '#8FFF3A', color: '#0B0B0B' }}>
+      <div className="py-1.5 px-3 tracking-wider leading-none" style={{ fontSize: 'clamp(9px, 2.5vw, 13px)' }}>
+        ⚡ ONLY <span style={{ fontSize: '1.25em' }}>{left}</span> MEMBERSHIPS LEFT · GRAND PRIZE REVEALED AT #1,000
       </div>
     </div>
   )
@@ -357,176 +341,119 @@ function UrgencyBanner({ available }: { available: number | null }) {
 // ─── HERO ─────────────────────────────────────────────────────────────────────
 
 function Hero({ available }: { available: number | null }) {
-  const sold = available !== null ? 1000 - available : 0
+  const sold = 1000 - (available ?? 1000)
+  const pct = (sold / 1000) * 100
 
   return (
     <section
       id="about"
-      className="relative min-h-[92vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden"
-      style={{
-        backgroundImage: 'url(/assets/4runner-hero.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center 40%',
-      }}
+      className="relative min-h-[100svh] flex flex-col items-center justify-end text-center px-4 pb-8 sm:pb-12 overflow-hidden bg-black"
     >
-      {/* Dark gradient overlay so text stays readable */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, rgba(10,8,0,0.82) 60%, #0A0A0A 100%)' }} />
-      <div className="absolute inset-0 bg-gold-pattern opacity-10 pointer-events-none" />
+      <video
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        style={{ objectPosition: 'center 40%' }}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        poster="/assets/hero-poster.jpg"
+      >
+        <source src="/assets/hero.mp4" type="video/mp4" />
+        <source src="/assets/hero.webm" type="video/webm" />
+      </video>
 
-      <div className="relative z-10 max-w-4xl w-full">
-        <p className="inline-flex items-center gap-2 border border-[var(--gold)] border-opacity-50 text-[var(--gold)] text-[10px] font-black uppercase tracking-[0.35em] px-5 py-2 mb-8">
-          Season 1 — Now Open
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.88) 35%, rgba(0,0,0,0.4) 65%, rgba(0,0,0,0.15) 100%)' }} />
+
+      <div className="relative z-10 max-w-3xl w-full">
+        <p className="text-[10px] sm:text-xs uppercase tracking-[0.4em] font-bold mb-3" style={{ color: '#D4AF37' }}>
+          Season 1 · 1,000 Memberships Only
         </p>
 
+        {/* Main headline */}
         <h1
-          className="font-black uppercase leading-[0.9] mb-4 tracking-tight"
+          className="font-black uppercase leading-none mb-1"
           style={{
             fontFamily: 'var(--font-playfair)',
-            fontSize: 'clamp(3rem, 10vw, 7.5rem)',
-            background: 'linear-gradient(180deg, #E8CC7A 0%, #C9A84C 50%, #8B6914 100%)',
+            fontSize: 'clamp(2.6rem, 11vw, 7rem)',
+            textShadow: '0 2px 40px rgba(0,0,0,0.9)',
+            background: 'linear-gradient(135deg, #A68B28 0%, #D4AF37 35%, #F8E48A 55%, #D4AF37 75%, #A68B28 100%)',
+            backgroundSize: '200% auto',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
           }}
         >
-          Golden Valley<br />Members
+          WIN A 4RUNNER
         </h1>
 
-        <p className="text-white/55 text-base md:text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
-          1,000 exclusive tickets. Three prize tiers. The moment ticket #1,000 is sold — the draw happens live.
-        </p>
-
-        {/* ── CASINO PRIZE SHOWCASE ── */}
-        <div className="w-full max-w-3xl mx-auto mb-10 grid grid-cols-1 sm:grid-cols-3 gap-2">
-
-          {/* Grand Prize */}
-          <div className="relative overflow-hidden p-5 text-center flex flex-col items-center gap-2"
-            style={{ background: 'linear-gradient(170deg,#0a0700 0%,#1c1200 60%,#0a0700 100%)', border: '1px solid #C9A84C', boxShadow: '0 0 40px rgba(212,175,55,0.35), 0 0 80px rgba(212,175,55,0.12), inset 0 1px 0 rgba(255,220,80,0.2)' }}>
-            {/* Animated corner flash */}
-            <div className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ background: 'linear-gradient(135deg,rgba(255,220,60,0.12) 0%,transparent 50%,rgba(255,180,0,0.06) 100%)' }} />
-            <div className="absolute top-0 inset-x-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,220,80,0.9),transparent)' }} />
-
-            <span className="text-[8px] font-black uppercase tracking-[0.4em]" style={{ color: '#FFD060' }}>★ Grand Prize ★</span>
-            <div className="w-10 h-px my-0.5" style={{ background: 'linear-gradient(90deg,transparent,#D4AF37,transparent)' }} />
-
-            <span className="font-black text-white leading-tight text-sm" style={{ fontFamily: 'var(--font-playfair)', textShadow: '0 0 20px rgba(255,200,40,0.5), 0 2px 4px rgba(0,0,0,0.8)' }}>
-              4Runner<br/>Trailhunter
+        {/* OR $70,000 line */}
+        <div className="flex items-center justify-center gap-3 mb-5 sm:mb-7">
+          <div className="h-px flex-1 max-w-[60px]" style={{ background: 'rgba(212,175,55,0.3)' }} />
+          <div className="flex items-baseline gap-2">
+            <span
+              className="font-black uppercase"
+              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(1.3rem, 4vw, 2.2rem)', color: '#D4AF37', textShadow: '0 0 20px rgba(212,175,55,0.8)' }}
+            >
+              OR
             </span>
-            <span className="text-[8px] uppercase tracking-wider" style={{ color: 'rgba(212,175,55,0.5)' }}>2026 · Special Edition</span>
-
-            <div className="w-full h-px my-1" style={{ background: 'linear-gradient(90deg,transparent,rgba(212,175,55,0.4),transparent)' }} />
-
-            <span className="font-black leading-none tabular-nums"
-              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2rem,5vw,2.8rem)', background: 'linear-gradient(180deg,#FFE566 0%,#D4AF37 45%,#8B6914 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 0 14px rgba(255,200,40,1)) drop-shadow(0 0 28px rgba(212,175,55,0.7))' }}>
-              $70,000
+            <span
+              className="font-black uppercase"
+              style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.5rem, 5.5vw, 3.5rem)', color: '#8FFF3A', textShadow: '0 0 30px rgba(143,255,58,0.7)' }}
+            >
+              $70,000 CASH
             </span>
-            <span className="text-[8px] uppercase tracking-wider" style={{ color: 'rgba(212,175,55,0.5)' }}>or cash equivalent</span>
           </div>
+          <div className="h-px flex-1 max-w-[60px]" style={{ background: 'rgba(212,175,55,0.3)' }} />
+        </div>
 
-          {/* 2nd Prize */}
-          <div className="relative overflow-hidden p-5 text-center flex flex-col items-center gap-2"
-            style={{ background: 'linear-gradient(170deg,#060606 0%,#101010 60%,#060606 100%)', border: '1px solid rgba(200,200,210,0.35)', boxShadow: '0 0 35px rgba(220,220,255,0.12), 0 0 70px rgba(200,200,255,0.05), inset 0 1px 0 rgba(255,255,255,0.12)' }}>
-            <div className="absolute top-0 inset-x-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.6),transparent)' }} />
-            <div className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ background: 'linear-gradient(135deg,rgba(255,255,255,0.06) 0%,transparent 50%)' }} />
-
-            <span className="text-[8px] font-black uppercase tracking-[0.4em] text-white/60">★ 2nd Prize ★</span>
-            <div className="w-10 h-px my-0.5" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)' }} />
-
-            <span className="text-[8px] uppercase tracking-wider text-white/30 mt-1">Cash · Direct Wire</span>
-
-            <div className="w-full h-px my-1" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)' }} />
-
-            <span className="font-black leading-none tabular-nums"
-              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2rem,5vw,2.8rem)', color: '#fff', textShadow: '0 0 30px rgba(255,255,255,0.8), 0 0 60px rgba(200,220,255,0.4), 0 2px 0 rgba(0,0,0,0.9)' }}>
-              $20,000
-            </span>
-            <span className="text-[8px] uppercase tracking-wider text-white/30">wired to winner</span>
+        {/* Mini prize cards */}
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-5 sm:mb-7 max-w-xs sm:max-w-sm mx-auto">
+          <div className="border border-white/15 bg-black/60 backdrop-blur-sm px-3 sm:px-4 py-3 text-left" style={{ boxShadow: '0 0 20px rgba(255,255,255,0.04)' }}>
+            <p className="text-white/40 text-[8px] sm:text-[10px] uppercase tracking-widest font-bold mb-1">2nd Prize</p>
+            <p className="font-black" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(1.2rem, 4.5vw, 1.8rem)', background: 'linear-gradient(135deg,#A68B28,#D4AF37,#E8CC7A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', filter: 'drop-shadow(0 0 6px rgba(212,175,55,0.5))' }}>$20,000</p>
+            <p className="text-white/35 text-[7px] sm:text-[9px] uppercase tracking-wider">Cash · 2nd Selection</p>
           </div>
-
-          {/* Daily Prize */}
-          <div className="relative overflow-hidden p-5 text-center flex flex-col items-center gap-2"
-            style={{ background: 'linear-gradient(170deg,#0e0800 0%,#221400 60%,#0e0800 100%)', border: '1px solid #D4AF37', boxShadow: '0 0 45px rgba(212,175,55,0.45), 0 0 90px rgba(212,175,55,0.18), inset 0 1px 0 rgba(255,220,80,0.25)', animation: 'pulse-gold 2.5s ease-in-out infinite' }}>
-            <div className="absolute top-0 inset-x-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,220,80,1),transparent)' }} />
-            <div className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ background: 'linear-gradient(135deg,rgba(255,200,40,0.18) 0%,transparent 55%)' }} />
-
-            <span className="text-[8px] font-black uppercase tracking-[0.4em]" style={{ color: '#FFD060' }}>🔥 Daily Prize 🔥</span>
-            <div className="w-10 h-px my-0.5" style={{ background: 'linear-gradient(90deg,transparent,#D4AF37,transparent)' }} />
-
-            <span className="text-[8px] uppercase tracking-wider" style={{ color: 'rgba(255,200,60,0.6)' }}>Every Day — Coming Soon</span>
-
-            <div className="w-full h-px my-1" style={{ background: 'linear-gradient(90deg,transparent,rgba(212,175,55,0.5),transparent)' }} />
-
-            <span className="font-black leading-none tabular-nums"
-              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2rem,5vw,2.8rem)', background: 'linear-gradient(180deg,#FFE566 0%,#FFB800 50%,#C47F00 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 0 16px rgba(255,180,0,1)) drop-shadow(0 0 32px rgba(255,140,0,0.8))' }}>
-              $1,000
-            </span>
-            <span className="font-black text-sm" style={{ color: '#D4AF37' }}>× 90 days</span>
+          <div className="border border-[#D4AF37]/35 bg-[#D4AF37]/8 backdrop-blur-sm px-3 sm:px-4 py-3 text-left" style={{ boxShadow: '0 0 20px rgba(212,175,55,0.08)' }}>
+            <p className="text-[#D4AF37]/70 text-[8px] sm:text-[10px] uppercase tracking-widest font-bold mb-1">Daily Prize</p>
+            <p className="font-black" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(1.2rem, 4.5vw, 1.8rem)', color: '#8FFF3A', textShadow: '0 0 12px rgba(143,255,58,0.8), 0 0 24px rgba(143,255,58,0.4)' }}>$1,000</p>
+            <p className="text-[#D4AF37]/50 text-[7px] sm:text-[9px] uppercase tracking-wider">Per day × 90 days</p>
           </div>
         </div>
 
-        <style>{`
-          @keyframes pulse-gold {
-            0%, 100% { box-shadow: 0 0 45px rgba(212,175,55,0.45), 0 0 90px rgba(212,175,55,0.18), inset 0 1px 0 rgba(255,220,80,0.25); }
-            50% { box-shadow: 0 0 60px rgba(212,175,55,0.65), 0 0 120px rgba(255,180,0,0.3), inset 0 1px 0 rgba(255,220,80,0.4); }
-          }
-        `}</style>
+        <div className="flex flex-col items-center gap-3 mb-6 sm:mb-8">
+          <Link
+            href="/register"
+            className="w-full sm:w-auto font-black uppercase tracking-widest text-white px-8 sm:px-14 py-4 sm:py-5 text-sm sm:text-lg transition-all hover:brightness-110 active:scale-95 text-center"
+            style={{ background: '#8FFF3A', color: '#0B0B0B', boxShadow: '0 0 40px rgba(143,255,58,0.6), 0 4px 20px rgba(0,0,0,0.6)' }}
+          >
+            GET MY MEMBERSHIP →
+          </Link>
+          <Link
+            href="/signin"
+            className="text-white/40 hover:text-white/70 transition-colors text-[11px] font-bold uppercase tracking-widest underline underline-offset-4"
+          >
+            Already a member? Sign in
+          </Link>
+        </div>
 
-        {/* Milestone progress — % only, no amounts */}
-        <div className="w-full max-w-lg mx-auto mb-10">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-white/35 text-[10px] uppercase tracking-widest">Campaign Progress</span>
-            <span className="font-black tabular-nums text-[var(--gold)]" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '1.1rem' }}>
-              {Math.min(100, Math.round(((1000 - (available ?? 1000)) * 500) / 5000))}%
-            </span>
+        {/* Progress bar */}
+        <div className="w-full max-w-sm mx-auto">
+          <div className="flex justify-between text-[9px] sm:text-[10px] uppercase tracking-widest text-white/35 mb-1.5">
+            <span>{sold} claimed</span>
+            <span>Goal: 1,000</span>
           </div>
-
-          {/* Bar with milestone marker */}
-          <div className="relative h-3 bg-white/10 rounded-full overflow-hidden border border-white/10">
-            {/* 60% marker = $300K milestone */}
-            <div className="absolute top-0 bottom-0 w-0.5 bg-white/40 z-10" style={{ left: '60%' }} />
+          <div className="h-2 bg-white/10 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-1000"
-              style={{
-                width: `${Math.max(2, Math.min(100, ((1000 - (available ?? 1000)) / 1000) * 100))}%`,
-                background: 'linear-gradient(90deg, #8B6914, #D4AF37, #F0D060)',
-                boxShadow: '0 0 12px rgba(212,175,55,0.5)',
-              }}
+              style={{ width: `${pct}%`, minWidth: pct > 0 ? '4px' : '0', background: 'linear-gradient(90deg, #A68B28, #D4AF37, #E8CC7A)' }}
             />
           </div>
-
-          {/* Milestone label */}
-          <div className="relative mt-1.5">
-            <div className="absolute flex flex-col items-center" style={{ left: '60%', transform: 'translateX(-50%)' }}>
-              <span className="text-white/35 text-[9px] uppercase tracking-widest whitespace-nowrap">
-                ↑ Daily $1K Milestone
-              </span>
-            </div>
-            <div className="h-4" />
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button
-            onClick={() => document.getElementById('buy-form')?.scrollIntoView({ behavior: 'smooth' })}
-            className="relative font-black uppercase tracking-widest text-black px-12 py-5 text-lg transition-all hover:scale-105 active:scale-95 overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, #8B6914, #D4AF37, #F5E070, #D4AF37, #8B6914)',
-              backgroundSize: '300% auto',
-              animation: 'shimmer 2.5s linear infinite',
-              boxShadow: '0 0 30px rgba(212,175,55,0.6), 0 0 60px rgba(212,175,55,0.25), 0 4px 20px rgba(0,0,0,0.6)',
-            }}
-          >
-            <span className="relative z-10">🎟 Get Your Ticket — $500</span>
-          </button>
-          <button
-            onClick={() => document.getElementById('prizes')?.scrollIntoView({ behavior: 'smooth' })}
-            className="font-black uppercase tracking-widest text-white/60 px-10 py-5 text-base border border-white/20 hover:border-[var(--gold)] hover:text-[var(--gold)] transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.2)]"
-          >
-            View All Prizes ↓
-          </button>
+          <p className="text-center text-white/30 text-[9px] sm:text-[10px] uppercase tracking-widest mt-1.5">
+            <span className="text-white font-black" style={{ fontFamily: 'var(--font-dm-mono)' }}>{available ?? 1000}</span> of 1,000 memberships available
+          </p>
         </div>
       </div>
-
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#0A0A0A] to-transparent pointer-events-none" />
     </section>
   )
 }
@@ -540,15 +467,77 @@ function Hero({ available }: { available: number | null }) {
 
 function TrustStrip() {
   return (
-    <div className="bg-[var(--gold)] py-3.5 px-4 overflow-hidden">
-      <div className="flex items-center justify-center gap-6 md:gap-14 flex-wrap text-black text-[11px] font-black uppercase tracking-widest">
+    <div className="py-3.5 px-4 overflow-hidden" style={{ background: '#111111' }}>
+      <div className="flex items-center justify-center gap-5 md:gap-12 flex-wrap text-white text-[10px] sm:text-[11px] font-black uppercase tracking-widest">
         <span>🔒 Secure Payment</span>
-        <span>✅ Official Rules</span>
-        <span>📧 Instant Confirmation</span>
-        <span>🎯 Only 1,000 Entries</span>
-        <span>🏆 Life-Changing Prizes</span>
+        <span>✅ Official LLC</span>
+        <span>🎯 Only 1,000 Members</span>
+        <span>🏆 Live Reveal</span>
+        <span>⚡ Instant Confirmation</span>
       </div>
     </div>
+  )
+}
+
+// ─── LOTTERY SECTION ──────────────────────────────────────────────────────────
+
+function LotterySection() {
+  const [digits, setDigits] = useState<string | null>(null)
+  const [date, setDate] = useState<string>('')
+  const [status, setStatus] = useState<'loading' | 'ok' | 'none'>('loading')
+
+  useEffect(() => {
+    fetch('/api/lottery')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.digits) { setDigits(d.digits); setDate(d.date ?? ''); setStatus('ok') }
+        else setStatus('none')
+      })
+      .catch(() => setStatus('none'))
+  }, [])
+
+  return (
+    <section className="py-5 px-4" style={{ background: '#0a0800', borderTop: '1px solid rgba(212,175,55,0.12)', borderBottom: '1px solid rgba(212,175,55,0.12)' }}>
+      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 flex items-center justify-center shrink-0" style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3" strokeLinecap="round"/></svg>
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.4em] font-bold" style={{ color: '#D4AF37' }}>Daily Tris 7pm · Número Ganador</p>
+            {date && <p className="text-white/30 text-[10px] mt-0.5">{date}</p>}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-6">
+          {status === 'loading' && <div className="flex gap-2">{[0,1,2].map(i => <div key={i} className="w-12 h-14 bg-[var(--gold)]/10 animate-pulse rounded-sm" />)}</div>}
+          {status === 'ok' && digits && (
+            <div className="flex gap-2">
+              {digits.split('').map((d, i) => (
+                <div key={i} className="w-12 h-14 flex items-center justify-center font-black text-3xl rounded-sm"
+                  style={{ fontFamily: 'var(--font-dm-mono)', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.35)', color: '#D4AF37', textShadow: '0 0 12px rgba(212,175,55,0.6)' }}>
+                  {d}
+                </div>
+              ))}
+            </div>
+          )}
+          {status === 'none' && (
+            <div className="flex gap-2">
+              {['?','?','?'].map((d, i) => (
+                <div key={i} className="w-12 h-14 flex items-center justify-center font-black text-3xl rounded-sm"
+                  style={{ fontFamily: 'var(--font-dm-mono)', background: 'rgba(80,80,80,0.1)', border: '1px solid rgba(80,80,80,0.3)', color: '#555' }}>
+                  {d}
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="text-left hidden sm:block">
+            <p className="text-white/40 text-[10px] uppercase tracking-widest font-bold">Lotería Nacional</p>
+            <p className="text-white/25 text-[10px]">Últimas 3 cifras • Tris</p>
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -556,186 +545,173 @@ function TrustStrip() {
 
 function PrizesSection() {
   return (
-    <section id="prizes" className="bg-[#0A0A0A] py-20 px-4">
+    <section id="prizes" className="py-8 sm:py-14 px-4 overflow-hidden" style={{ background: '#080808' }}>
+      <style>{`
+        @keyframes prize-glow {
+          0%, 100% { text-shadow: 0 0 30px rgba(143,255,58,0.9), 0 0 60px rgba(143,255,58,0.5), 0 0 100px rgba(143,255,58,0.2); }
+          50% { text-shadow: 0 0 50px rgba(143,255,58,1), 0 0 100px rgba(143,255,58,0.8), 0 0 150px rgba(143,255,58,0.35); }
+        }
+        @keyframes gold-shimmer {
+          0% { background-position: 200% center; }
+          100% { background-position: -200% center; }
+        }
+        @keyframes card-float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+        .prize-red-glow {
+          color: #8FFF3A;
+          animation: prize-glow 2.8s ease-in-out infinite;
+        }
+        .gold-shine {
+          background: linear-gradient(90deg, #A68B28 0%, #D4AF37 20%, #F8E48A 40%, #FFFDE0 50%, #F8E48A 60%, #D4AF37 80%, #A68B28 100%);
+          background-size: 300% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: gold-shimmer 3s linear infinite;
+        }
+        .float-a { animation: card-float 5s ease-in-out infinite; }
+        .float-b { animation: card-float 5s ease-in-out 1.5s infinite; }
+      `}</style>
+
       <div className="max-w-5xl mx-auto">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
-          <span className="text-[var(--gold)] text-xs uppercase tracking-[0.4em] font-bold whitespace-nowrap">Prize Structure</span>
-          <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
-        </div>
-        <div className="text-center mb-12">
+        {/* Section header */}
+        <div className="text-center mb-6 sm:mb-8">
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.5em] font-bold mb-3" style={{ color: '#8FFF3A' }}>
+            What You Can Win
+          </p>
           <h2
-            className="font-black uppercase text-white leading-tight"
-            style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}
+            className="font-black uppercase text-white leading-none"
+            style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(2rem, 7vw, 5rem)' }}
           >
             Three Ways to Win
           </h2>
-          <p className="text-white/40 mt-3 text-sm max-w-md mx-auto">
-            One draw. Three prize tiers. Life-changing prizes.
-          </p>
         </div>
 
-        {/* Prize cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-14">
-          {/* 1st Prize */}
-          <div className="md:col-span-3 border border-[var(--gold)] bg-[var(--black-card)] overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-2">
-              {/* Image */}
-              <div className="relative overflow-hidden" style={{ minHeight: 260 }}>
-                <div className="absolute top-4 left-4 z-10 bg-[var(--gold)] text-black text-[10px] font-black uppercase tracking-widest px-3 py-1.5">
-                  1st Prize
-                </div>
+        {/* Grand Prize */}
+        <div className="mb-8 sm:mb-12">
+          {/* Badge */}
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex items-center gap-2 px-5 py-2 border font-black text-[11px] uppercase tracking-widest" style={{ borderColor: '#D4AF37', color: '#D4AF37', background: 'rgba(212,175,55,0.07)' }}>
+              🏆 Grand Prize — Winner&apos;s Choice
+            </div>
+          </div>
+
+          {/* Vehicle + OR + Cash layout */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-0">
+            {/* 4Runner side */}
+            <div className="flex-1 text-center px-4 sm:px-6 py-5 sm:py-7 border border-white/10 bg-[#0d0d0d] w-full sm:max-w-xs">
+              <div className="relative overflow-hidden mb-5 mx-auto" style={{ height: 180, maxWidth: 320 }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/assets/4runner-golden-gate.png"
-                  alt="2026 Toyota 4Runner Trailhunter at the Golden Gate Bridge"
-                  className="absolute inset-0 w-full h-full object-cover"
+                  alt="2027 Toyota 4Runner"
+                  className="w-full h-full object-cover"
                   style={{ objectPosition: 'center 55%' }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[var(--black-card)]/40 pointer-events-none hidden lg:block" />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 50%, #0d0d0d 100%)' }} />
               </div>
+              <p className="text-white/30 text-[9px] uppercase tracking-[0.4em] font-bold mb-1">Vehicle Prize</p>
+              <p
+                className="font-black uppercase leading-tight"
+                style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.4rem, 4vw, 2.2rem)', background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
+              >
+                Toyota<br />4Runner
+              </p>
+              <p className="text-white/40 text-[10px] uppercase tracking-widest mt-1 font-bold">2027 Edition</p>
+            </div>
 
-              {/* Info */}
-              <div className="p-8 lg:p-12 flex flex-col justify-center gap-5">
-                <div>
-                  <p className="text-[var(--gold)] text-[10px] font-black uppercase tracking-[0.3em] mb-2">Grand Prize — Winner&apos;s Choice</p>
-                  <h3
-                    className="font-black uppercase text-white leading-tight"
-                    style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.6rem, 3.5vw, 2.5rem)' }}
-                  >
-                    2026 Toyota<br />4Runner Trailhunter
-                  </h3>
-                  <p className="text-white/40 text-sm mt-2">Special Edition · Off-Road Ready</p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { label: 'Engine', val: '2.4L Turbo-4 · 278 HP' },
-                    { label: 'Drive', val: '4WD with Crawl Control' },
-                    { label: 'Edition', val: 'Trailhunter Special' },
-                    { label: 'Retail Value', val: '~$70,000 USD' },
-                  ].map(({ label, val }) => (
-                    <div key={label} className="bg-[var(--black)] border border-[var(--black-border)] p-3">
-                      <p className="text-white/35 text-[9px] uppercase tracking-wider mb-0.5">{label}</p>
-                      <p className="text-white font-bold text-xs" style={{ fontFamily: 'var(--font-dm-mono)' }}>{val}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-4 pt-2 border-t border-[var(--black-border)]">
-                  <div className="text-center">
-                    <p className="text-white/35 text-[9px] uppercase tracking-wider">Vehicle Value</p>
-                    <p className="text-[var(--gold)] font-black text-xl" style={{ fontFamily: 'var(--font-dm-mono)' }}>~$70K</p>
-                  </div>
-                  <div className="text-white/20 text-lg font-thin">or</div>
-                  <div className="text-center">
-                    <p className="text-white/35 text-[9px] uppercase tracking-wider">Cash Alternative</p>
-                    <p className="text-white font-black text-xl" style={{ fontFamily: 'var(--font-dm-mono)' }}>$70,000</p>
-                  </div>
-                </div>
+            {/* OR divider */}
+            <div className="flex sm:flex-col items-center justify-center gap-3 sm:gap-4 px-2 py-4 sm:py-0 sm:px-4 z-10">
+              <div className="h-px w-12 sm:h-16 sm:w-px bg-white/15" />
+              <div
+                className="font-black leading-none"
+                style={{
+                  fontFamily: 'var(--font-dm-mono)',
+                  fontSize: 'clamp(3rem, 8vw, 5.5rem)',
+                  background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  filter: 'drop-shadow(0 0 20px rgba(212,175,55,0.5))',
+                }}
+              >
+                OR
               </div>
+              <div className="h-px w-12 sm:h-16 sm:w-px bg-white/15" />
+            </div>
+
+            {/* Cash side */}
+            <div className="flex-1 text-center px-4 sm:px-6 py-5 sm:py-7 border border-[#8FFF3A]/20 bg-[#8FFF3A]/4 w-full sm:max-w-xs" style={{ boxShadow: '0 0 60px rgba(143,255,58,0.04)' }}>
+              <p className="text-[#8FFF3A]/60 text-[9px] uppercase tracking-[0.4em] font-bold mb-4">Cash Prize</p>
+              <div
+                className="prize-red-glow font-black leading-none tabular-nums"
+                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2.25rem, 7vw, 3.75rem)' }}
+              >
+                $70,000
+              </div>
+              <p className="text-white/40 text-[10px] sm:text-sm uppercase tracking-widest mt-3 font-bold">USD Cash</p>
+              <p className="text-white/25 text-[10px] uppercase tracking-wider mt-1">Wired directly to the winner</p>
             </div>
           </div>
 
+          <p className="text-center text-white/25 text-[11px] uppercase tracking-widest mt-5 font-bold">
+            Winner chooses: take the truck or the cash — at the moment of the draw
+          </p>
+        </div>
+
+        {/* 2nd + Daily prizes */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-5 sm:mb-8">
           {/* 2nd Prize */}
-          <div className="relative overflow-hidden flex flex-col justify-between p-6 gap-5"
-            style={{ background: 'linear-gradient(160deg,#060606,#0e0e0e)', border: '1px solid rgba(255,255,255,0.14)', boxShadow: '0 0 30px rgba(255,255,255,0.04), inset 0 0 30px rgba(255,255,255,0.02)' }}>
-            <div className="absolute top-0 right-0 w-36 h-36 pointer-events-none" style={{ background: 'radial-gradient(circle at top right, rgba(255,255,255,0.09), transparent 65%)' }} />
-            <div className="absolute bottom-0 left-0 w-24 h-24 pointer-events-none" style={{ background: 'radial-gradient(circle at bottom left, rgba(255,255,255,0.05), transparent 70%)' }} />
-
-            <div className="flex items-start justify-between relative z-10">
-              <div className="text-[9px] font-black uppercase tracking-[0.3em] text-white/45 border border-white/12 px-3 py-1.5">2nd Prize</div>
-              <span className="text-2xl opacity-30">💵</span>
+          <div className="float-a border border-white/10 bg-[#111] p-6 sm:p-8 text-center" style={{ boxShadow: '0 0 60px rgba(255,255,255,0.02), inset 0 1px 0 rgba(255,255,255,0.05)' }}>
+            <p className="text-white/25 text-[10px] uppercase tracking-[0.5em] font-bold mb-3">2nd Prize · Cash</p>
+            <div
+              className="gold-shine font-black leading-none tabular-nums mb-4"
+              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2.8rem, 6vw, 5.5rem)' }}
+            >
+              $20,000
             </div>
-
-            <div className="relative z-10 flex flex-col gap-1.5">
-              <p className="text-white/30 text-[9px] uppercase tracking-widest">Cash · Direct Wire Transfer</p>
-              <p className="font-black leading-[0.9] break-words"
-                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2.2rem,4.5vw,3.2rem)', color: '#fff', textShadow: '0 0 30px rgba(255,255,255,0.5), 0 0 60px rgba(255,255,255,0.2), 0 2px 0 rgba(0,0,0,0.8)' }}>
-                $20,000
-              </p>
-              <p className="text-white/30 text-[9px] uppercase tracking-[0.2em]">Twenty Thousand Dollars</p>
-            </div>
-
-            <div className="relative z-10 flex flex-col gap-2">
-              <div className="h-px bg-white/8" />
-              <p className="text-white/30 text-xs leading-relaxed">
-                Second ticket drawn wins $20K wired directly to their account.
-              </p>
-            </div>
+            <p className="text-white/40 text-xs sm:text-sm uppercase tracking-widest font-bold">Wired directly to the winner</p>
           </div>
 
-          {/* 3rd — Daily */}
-          <div className="md:col-span-2 relative overflow-hidden p-8 flex flex-col gap-5"
-            style={{ background: 'linear-gradient(135deg,#0e0800 0%,#1a1000 40%,#241800 100%)', border: '1px solid rgba(212,175,55,0.55)', boxShadow: '0 0 40px rgba(212,175,55,0.2), inset 0 0 60px rgba(212,175,55,0.05)' }}>
-            {/* Background glow orb */}
-            <div className="absolute -top-10 -right-10 w-56 h-56 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.18) 0%, transparent 70%)' }} />
-            <div className="absolute bottom-0 left-0 w-40 h-40 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%)' }} />
-
-            <div className="flex items-start justify-between relative z-10">
-              <div className="text-[9px] font-black uppercase tracking-[0.3em] text-[var(--gold)] border border-[var(--gold)] border-opacity-50 px-3 py-1.5">
-                Daily Giveaway
-              </div>
-              <span className="text-3xl" style={{ filter: 'drop-shadow(0 0 8px rgba(212,175,55,0.8))' }}>🏅</span>
+          {/* Daily Prize */}
+          <div className="float-b border border-[#8FFF3A]/25 bg-[#8FFF3A]/6 p-6 sm:p-8 text-center relative" style={{ boxShadow: '0 0 80px rgba(143,255,58,0.05)' }}>
+            <div className="absolute -right-3 -top-3 font-black text-white/5 select-none pointer-events-none leading-none" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10rem' }}>90</div>
+            <p className="text-[#8FFF3A]/60 text-[10px] uppercase tracking-[0.5em] font-bold mb-3 relative z-10">Daily Prize</p>
+            <div
+              className="font-black leading-none tabular-nums mb-2 relative z-10"
+              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2.8rem, 6vw, 5.5rem)', color: '#8FFF3A', textShadow: '0 0 40px rgba(143,255,58,0.5)' }}
+            >
+              $1,000
             </div>
-
-            <div className="relative z-10 flex flex-col sm:flex-row sm:items-end gap-4">
-              <div className="flex flex-col gap-1">
-                <p className="text-[var(--gold)] text-[10px] uppercase tracking-widest opacity-60">Every Single Day</p>
-                <div className="flex items-end gap-2 leading-none">
-                  <span className="font-black"
-                    style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(3.5rem,8vw,5.5rem)', background: 'linear-gradient(180deg,#F5E070 0%,#D4AF37 50%,#8B6914 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 0 12px rgba(212,175,55,0.9))' }}>
-                    $1,000
-                  </span>
-                  <span className="text-[var(--gold)] font-black text-2xl opacity-70 mb-2">/day</span>
-                </div>
-                <p className="text-[var(--gold)] text-base font-black opacity-70 tracking-widest uppercase">× 90 Consecutive Days</p>
-              </div>
-
-            </div>
-
-            <div className="h-px bg-[var(--gold)] opacity-15 relative z-10" />
-
-            <div className="relative z-10 flex items-center gap-3">
-              {[['Duration','90 Days'],['Daily Amount','$1,000'],['Starts','TBD']].map(([label, val]) => (
-                <div key={label} className="flex-1 text-center py-2" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)' }}>
-                  <p className="text-[var(--gold)] text-[9px] uppercase tracking-wider opacity-50">{label}</p>
-                  <p className="text-[var(--gold)] font-black text-sm">{val}</p>
-                </div>
-              ))}
-            </div>
+            <p className="text-white/40 text-xs sm:text-sm uppercase tracking-widest font-bold relative z-10">Every day for 90 days</p>
           </div>
         </div>
 
-        {/* Surprise Prizes */}
-        <div className="mt-6">
-          <div className="flex items-center gap-4 mb-5">
-            <div className="h-px flex-1 bg-[var(--gold)] opacity-20" />
-            <span className="text-[var(--gold)] text-xs uppercase tracking-[0.4em] font-bold whitespace-nowrap">✦ Surprise Prizes</span>
-            <div className="h-px flex-1 bg-[var(--gold)] opacity-20" />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {[
-              { icon: '🎁', label: 'Mystery Bonus', desc: 'Randomly awarded to active ticket holders throughout the campaign — announced live on social media.' },
-              { icon: '⚡', label: 'Flash Giveaways', desc: 'Unannounced same-day drawings dropped via our WhatsApp group. Follow closely so you never miss one.' },
-              { icon: '🌟', label: 'Loyalty Reward', desc: 'Special recognition prize for early participants. Details revealed closer to draw day.' },
-            ].map(({ icon, label, desc }) => (
-              <div key={label} className="bg-[var(--black-card)] border border-[var(--gold)]/20 p-5 flex flex-col gap-2 hover:border-[var(--gold)]/50 transition-colors">
-                <span className="text-2xl">{icon}</span>
-                <p className="text-[var(--gold)] font-black uppercase tracking-wider text-xs">{label}</p>
-                <p className="text-white/40 text-xs leading-relaxed">{desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-5 flex justify-center">
-            <button
-              onClick={() => document.getElementById('buy-form')?.scrollIntoView({ behavior: 'smooth' })}
-              className="font-black uppercase tracking-widest text-black px-10 py-4 text-sm transition-all hover:scale-105 active:scale-95"
-              style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37, #F0D060, #D4AF37)' }}
-            >
-              Enter for $500 →
-            </button>
-          </div>
+        {/* Odds callout */}
+        <div className="relative overflow-hidden border border-[#D4AF37]/30 p-8 sm:p-14 text-center" style={{ background: 'radial-gradient(ellipse at center, #120f00 0%, #080808 65%)', boxShadow: '0 0 80px rgba(212,175,55,0.06)' }}>
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.5em] font-bold mb-4" style={{ color: '#D4AF37' }}>
+            Why Your Odds Are Exceptional
+          </p>
+          <h3
+            className="font-black uppercase text-white leading-tight mb-5"
+            style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.8rem, 6vw, 4rem)' }}
+          >
+            Your Chances Are<br className="hidden sm:block" /> Incredibly High
+          </h3>
+          <p className="text-white/45 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed mb-8">
+            Only 1,000 memberships — ever. With 90 daily prizes distributed across the member pool,
+            <strong className="text-white"> nearly 1 in 11 members</strong> can receive a daily prize.
+            These are exceptional odds compared to any traditional contest.
+          </p>
+          <button
+            onClick={() => document.getElementById('buy-form')?.scrollIntoView({ behavior: 'smooth' })}
+            className="w-full sm:w-auto font-black uppercase tracking-widest text-white px-10 sm:px-16 py-4 sm:py-5 text-sm sm:text-base transition-all hover:brightness-110 active:scale-95"
+            style={{ background: '#8FFF3A', color: '#0B0B0B', boxShadow: '0 0 35px rgba(143,255,58,0.4)' }}
+          >
+            GET MY MEMBERSHIP →
+          </button>
         </div>
       </div>
     </section>
@@ -745,72 +721,112 @@ function PrizesSection() {
 // ─── HOW IT WORKS ─────────────────────────────────────────────────────────────
 
 function HowItWorks() {
+  const steps = [
+    {
+      num: '01',
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+        </svg>
+      ),
+      title: 'Register',
+      body: 'Complete your information and become a verified member. Your identity and signature are securely stored.',
+      accent: '#D4AF37',
+    },
+    {
+      num: '02',
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8FFF3A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
+          <path d="M14 17h3m4 0h-3m0-3v3m0 3v-3" />
+        </svg>
+      ),
+      title: 'Get Your Number',
+      body: 'Pick your lucky number from 1 to 1,000. Your official participation number is reserved once your payment is confirmed.',
+      accent: '#8FFF3A',
+    },
+    {
+      num: '03',
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+        </svg>
+      ),
+      title: 'Receive Your Referral Code',
+      body: 'Get your unique personal code. Share it with friends and earn $50 for every qualified referral you bring in.',
+      accent: '#D4AF37',
+    },
+    {
+      num: '04',
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8FFF3A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1" /><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+          <line x1="6" y1="1" x2="6" y2="4" /><line x1="10" y1="1" x2="10" y2="4" /><line x1="14" y1="1" x2="14" y2="4" />
+        </svg>
+      ),
+      title: 'Stay Updated',
+      body: 'Follow our official channels for live announcements, daily prize results, events, and the final draw.',
+      accent: '#8FFF3A',
+    },
+  ]
+
   return (
-    <section id="how-it-works" className="py-20 px-4" style={{ background: '#0d0d0d' }}>
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center gap-4 mb-4">
+    <section id="how-it-works" className="py-10 sm:py-14 px-4" style={{ background: '#0D0900' }}>
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-3">
           <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
-          <span className="text-[var(--gold)] text-xs uppercase tracking-[0.4em] font-bold whitespace-nowrap">How It Works</span>
+          <span className="text-[var(--gold)] text-[10px] sm:text-xs uppercase tracking-[0.4em] font-bold whitespace-nowrap">How to Participate</span>
           <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
         </div>
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h2
             className="font-black uppercase text-white"
-            style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}
+            style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.6rem, 5vw, 3rem)' }}
           >
-            Simple. Transparent. Fair.
+            4 Simple Steps
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[var(--black-border)]">
-          {[
-            {
-              num: '01', icon: '💳',
-              title: 'Purchase Your Ticket',
-              body: 'Pay $500 securely via Zelle or credit card. Each ticket is numbered #1–1,000 and assigned only after payment is confirmed.',
-              accent: '#C9A84C',
-            },
-            {
-              num: '02', icon: '🎫',
-              title: 'Get Your Number',
-              body: 'Your sequential ticket number is yours permanently. It appears on the live ticket board and is your entry into all prize draws.',
-              accent: '#FF4E00',
-            },
-            {
-              num: '03', icon: '🏆',
-              title: 'Win When #1,000 Sells',
-              body: 'The moment ticket #1,000 is confirmed, the draw happens live. Two winners are drawn — one for the 4Runner, one for $20,000.',
-              accent: '#C9A84C',
-            },
-          ].map((step) => (
+        {/* Steps — compact rows */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--black-border)]">
+          {steps.map((step) => (
             <div
               key={step.num}
-              className="bg-[var(--black-card)] p-8 md:p-10 flex flex-col gap-4 group hover:bg-[#151515] transition-colors"
+              className="bg-[var(--black-card)] px-5 py-5 flex items-start gap-4 hover:bg-[#100e06] transition-colors"
             >
-              <div className="flex items-start justify-between">
-                <span className="text-4xl">{step.icon}</span>
-                <span
-                  className="font-black text-5xl opacity-15 leading-none group-hover:opacity-25 transition-opacity"
-                  style={{ fontFamily: 'var(--font-dm-mono)', color: step.accent }}
-                >
-                  {step.num}
-                </span>
+              {/* Number circle */}
+              <div
+                className="w-9 h-9 flex items-center justify-center font-black text-sm shrink-0 mt-0.5"
+                style={{
+                  background: step.accent === '#D4AF37' ? 'rgba(212,175,55,0.12)' : 'rgba(143,255,58,0.1)',
+                  color: step.accent,
+                  border: `1.5px solid ${step.accent}50`,
+                }}
+              >
+                {step.num}
               </div>
-              <div className="h-0.5 w-10 transition-all duration-300 group-hover:w-full" style={{ background: step.accent }} />
-              <h3 className="text-white font-black uppercase tracking-wide text-base">{step.title}</h3>
-              <p className="text-white/45 text-sm leading-relaxed">{step.body}</p>
+
+              {/* Text */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span style={{ color: step.accent }}>{step.icon}</span>
+                  <h3 className="text-white font-black uppercase tracking-wide text-xs sm:text-sm">{step.title}</h3>
+                </div>
+                <p className="text-white/40 text-xs sm:text-sm leading-relaxed">{step.body}</p>
+              </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-10 p-6 border border-[var(--black-border)] bg-[var(--black-card)] flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="w-1 h-12 bg-[var(--gold)] shrink-0" />
-          <div>
-            <p className="text-[var(--gold)] text-xs font-black uppercase tracking-wider mb-1">Important Note</p>
-            <p className="text-white/50 text-sm leading-relaxed">
-              Ticket numbers are assigned on a first-confirmed basis — not first-paid. Zelle payments require manual admin verification (up to 24h). Card payments via Stripe are confirmed instantly.
-            </p>
-          </div>
+        {/* Payment methods note */}
+        <div className="mt-4 px-4 sm:px-5 py-4 border border-[var(--black-border)] bg-[var(--black-card)] flex items-start gap-3">
+          <div className="w-0.5 h-8 bg-[var(--gold)] shrink-0 mt-0.5" />
+          <p className="text-white/45 text-xs leading-relaxed">
+            <span className="text-[var(--gold)] font-black uppercase tracking-wider text-[10px]">Payment: </span>
+            <strong className="text-white">⚡ Zelle</strong> (verified within 24h) or <strong className="text-white">💳 Card</strong> via Stripe (instant). Number assigned only after payment confirmed.
+          </p>
         </div>
       </div>
     </section>
@@ -821,7 +837,7 @@ function HowItWorks() {
 
 function WinnersSection() {
   return (
-    <section id="winners" className="py-20 px-4 bg-[#0A0A0A]">
+    <section id="winners" className="py-20 px-4 bg-[#0B0B0B]">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center gap-4 mb-4">
           <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
@@ -860,7 +876,7 @@ function WinnersSection() {
             <div className="h-2 bg-[var(--black)] border border-[var(--black-border)] rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full"
-                style={{ width: '0%', background: 'linear-gradient(90deg, #8B6914, #C9A84C, #E8CC7A)' }}
+                style={{ width: '0%', background: 'linear-gradient(90deg, #A68B28, #D4AF37, #E8CC7A)' }}
               />
             </div>
             <p className="text-white/25 text-[10px] text-center mt-2 uppercase tracking-wider">0 / 1,000 confirmed</p>
@@ -883,41 +899,82 @@ function WinnersSection() {
 // ─── TEASER GRID ──────────────────────────────────────────────────────────────
 
 function TeaserGrid({ tickets }: { tickets: TicketGridItem[] }) {
+  const router = useRouter()
   const first100 = tickets.slice(0, 100)
   const available = tickets.filter((t) => t.status === 'available').length
   const sold = 1000 - available
 
   return (
-    <section className="bg-[#0A0A0A] py-20 px-4">
+    <section className="py-20 px-4" style={{ background: '#111116' }}>
+      <style>{`
+        @keyframes gold-cell-glow {
+          0%, 100% {
+            box-shadow: 0 0 4px rgba(212,175,55,0.5), 0 0 8px rgba(212,175,55,0.2);
+            background: linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A);
+          }
+          50% {
+            box-shadow: 0 0 10px rgba(212,175,55,0.9), 0 0 20px rgba(212,175,55,0.5), 0 0 35px rgba(212,175,55,0.2);
+            background: linear-gradient(135deg, #C4A030, #F0C840, #FFF0A0);
+          }
+        }
+        @keyframes gold-sweep {
+          0% { background-position: 200% center; }
+          100% { background-position: -200% center; }
+        }
+        .ticket-available {
+          background: linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A);
+          animation: gold-cell-glow 2.5s ease-in-out infinite;
+          color: #0B0B0B;
+          cursor: pointer;
+        }
+        .ticket-available:nth-child(2n) { animation-delay: 0.3s; }
+        .ticket-available:nth-child(3n) { animation-delay: 0.6s; }
+        .ticket-available:nth-child(5n) { animation-delay: 1s; }
+        .ticket-available:nth-child(7n) { animation-delay: 1.4s; }
+        .ticket-available:hover {
+          animation: none;
+          box-shadow: 0 0 16px rgba(212,175,55,1), 0 0 32px rgba(212,175,55,0.7), 0 0 50px rgba(212,175,55,0.3) !important;
+          background: linear-gradient(135deg, #C4A030, #F0C840, #FFF0A0) !important;
+          transform: scale(1.12);
+          z-index: 2;
+        }
+      `}</style>
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center gap-4 mb-4">
           <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
-          <span className="text-[var(--gold)] text-xs uppercase tracking-[0.4em] font-bold whitespace-nowrap">Live Ticket Board</span>
+          <span className="text-[var(--gold)] text-xs uppercase tracking-[0.4em] font-bold whitespace-nowrap">Live Membership Board</span>
           <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
         </div>
 
+        <p className="text-center text-white/50 text-sm mb-6 font-bold uppercase tracking-wider">
+          See a number you want? <span className="text-[var(--gold)]">Click it to claim it!</span>
+        </p>
+
         <div className="flex items-center justify-center gap-6 mb-6 text-center">
           <div>
-            <div className="text-[var(--gold)] font-black text-2xl" style={{ fontFamily: 'var(--font-dm-mono)' }}>{sold}</div>
-            <div className="text-white/35 text-[10px] uppercase tracking-widest">Sold</div>
+            <div className="font-black" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2.5rem,5vw,3.5rem)', color: 'var(--gold)', filter: 'drop-shadow(0 0 10px rgba(212,175,55,0.6))' }}>{sold}</div>
+            <div className="text-white/35 text-[10px] uppercase tracking-widest">Claimed</div>
           </div>
           <div className="flex-1 max-w-xs">
-            <div className="h-2 bg-[var(--black-border)] rounded-full overflow-hidden">
+            <div className="h-3 bg-[var(--black-border)] rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-1000"
-                style={{ width: `${(sold / 1000) * 100}%`, background: 'linear-gradient(90deg, #8B6914, #C9A84C, #E8CC7A)' }}
+                style={{ width: `${(sold / 1000) * 100}%`, background: 'linear-gradient(90deg, #A68B28, #D4AF37, #E8CC7A)', boxShadow: '0 0 8px rgba(212,175,55,0.5)' }}
               />
             </div>
             <div className="text-white/25 text-[10px] text-center mt-1">{sold}/1,000 SOLD</div>
           </div>
           <div>
-            <div className="text-white font-black text-2xl" style={{ fontFamily: 'var(--font-dm-mono)' }}>{available}</div>
+            <div className="font-black" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(2.5rem,5vw,3.5rem)', color: '#fff', textShadow: '0 0 20px rgba(255,255,255,0.4)' }}>{available}</div>
             <div className="text-white/35 text-[10px] uppercase tracking-widest">Left</div>
           </div>
         </div>
 
         <div className="flex gap-4 justify-center text-[10px] uppercase tracking-wider mb-5 text-white/35 font-bold">
-          <span className="flex items-center gap-1.5"><span className="w-3 h-3 bg-[var(--gold)] rounded-sm inline-block" />Available</span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-sm inline-block" style={{ background: 'linear-gradient(135deg,#A68B28,#D4AF37,#E8CC7A)', boxShadow: '0 0 6px rgba(212,175,55,0.7)' }} />
+            Available
+          </span>
           <span className="flex items-center gap-1.5"><span className="w-3 h-3 bg-[#1a1a1a] border border-[#333] rounded-sm inline-block" />Sold</span>
           <span className="flex items-center gap-1.5"><span className="w-3 h-3 border border-[var(--gold)] rounded-sm inline-block animate-pulse" />Pending</span>
         </div>
@@ -927,14 +984,14 @@ function TeaserGrid({ tickets }: { tickets: TicketGridItem[] }) {
             <div
               key={t.number}
               title={`#${t.number}`}
-              onClick={() => t.status === 'available' && document.getElementById('buy-form')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => t.status === 'available' && router.push(`/register?number=${t.number}`)}
               className={[
-                'aspect-square flex items-center justify-center text-[9px] md:text-[11px] font-bold transition-all rounded-sm',
-                ticketColor(t.status),
+                'aspect-square flex items-center justify-center text-[8px] md:text-[10px] font-bold transition-transform rounded-sm relative',
+                t.status === 'available' ? 'ticket-available' : ticketColor(t.status),
               ].join(' ')}
               style={{ fontFamily: 'var(--font-dm-mono)' }}
             >
-              {String(t.number - 1).padStart(3, '0')}
+              {String(t.number).padStart(3, '0')}
             </div>
           ))}
         </div>
@@ -954,7 +1011,8 @@ function TeaserGrid({ tickets }: { tickets: TicketGridItem[] }) {
 
 // ─── TICKET PICKER ────────────────────────────────────────────────────────────
 
-function TicketPicker({ tickets, onSelect }: { tickets: TicketGridItem[]; onSelect: (n: number) => void }) {
+function TicketPicker({ tickets }: { tickets: TicketGridItem[] }) {
+  const router = useRouter()
   const [mode, setMode] = useState<'idle' | 'manual' | 'random'>('idle')
   const [manualInput, setManualInput] = useState('')
   const [checking, setChecking] = useState(false)
@@ -969,11 +1027,11 @@ function TicketPicker({ tickets, onSelect }: { tickets: TicketGridItem[]; onSele
   const availableTickets = tickets.filter((t) => t.status === 'available')
 
   const checkManual = useCallback(async (val: string) => {
-    const displayNum = parseInt(val, 10)
-    if (isNaN(displayNum) || displayNum < 0 || displayNum > 999) { setCheckResult(null); return }
+    const num = parseInt(val, 10)
+    if (isNaN(num) || num < 1 || num > 1000) { setCheckResult(null); return }
     setChecking(true)
     try {
-      const res = await fetch(`/api/tickets/check?number=${displayNum + 1}&session_id=${sessionId}`)
+      const res = await fetch(`/api/tickets/check?number=${num}&session_id=${sessionId}`)
       const data = await res.json() as { available: boolean }
       setCheckResult(data)
     } catch { setCheckResult(null) }
@@ -999,17 +1057,18 @@ function TicketPicker({ tickets, onSelect }: { tickets: TicketGridItem[]; onSele
     let intervalMs = 80
 
     const step = () => {
+      // (uses ticket.number directly — 1-based, consistent with DB and display)
       elapsed += intervalMs
       if (elapsed >= totalDuration) {
         if (spinRef.current) clearInterval(spinRef.current)
         spinRef.current = null
-        setSpinDisplay(target.number - 1)
+        setSpinDisplay(target.number)
         setSpinning(false)
         return
       }
       if (elapsed > totalDuration - 900) intervalMs = 220
       const rand = availableTickets[Math.floor(Math.random() * availableTickets.length)]
-      setSpinDisplay(rand.number - 1)
+      setSpinDisplay(rand.number)
     }
     spinRef.current = setInterval(step, intervalMs)
   }
@@ -1033,10 +1092,7 @@ function TicketPicker({ tickets, onSelect }: { tickets: TicketGridItem[]; onSele
         return
       }
       setConfirmed(internalNum)
-      onSelect(internalNum)
-      setTimeout(() => {
-        document.getElementById('buy-form-fields')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }, 350)
+      router.push(`/register?number=${internalNum}`)
     } catch {
       alert('Connection error. Please try again.')
     }
@@ -1049,7 +1105,6 @@ function TicketPicker({ tickets, onSelect }: { tickets: TicketGridItem[]; onSele
     setCheckResult(null)
     setManualInput('')
     setMode('idle')
-    onSelect(0 as unknown as number)
   }
 
   if (confirmed) {
@@ -1059,12 +1114,12 @@ function TicketPicker({ tickets, onSelect }: { tickets: TicketGridItem[]; onSele
           className="inline-flex flex-col items-center gap-2 border-2 border-[var(--gold)] px-10 py-6 mb-4"
           style={{ background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.08) 0%, transparent 70%)' }}
         >
-          <span className="text-[10px] uppercase tracking-[0.4em] text-[var(--gold)] font-bold">Your Ticket Number</span>
+          <span className="text-[10px] uppercase tracking-[0.4em] text-[var(--gold)] font-bold">Your Membership Number</span>
           <span
             className="font-black"
             style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(3.5rem, 10vw, 5.5rem)', color: 'var(--gold)', textShadow: '0 0 40px rgba(212,175,55,0.7)' }}
           >
-            #{String(confirmed - 1).padStart(3, '0')}
+            #{String(confirmed).padStart(3, '0')}
           </span>
           <span className="text-white/35 text-xs uppercase tracking-widest">Reserved · 15-minute hold</span>
         </div>
@@ -1080,23 +1135,61 @@ function TicketPicker({ tickets, onSelect }: { tickets: TicketGridItem[]; onSele
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <style>{`
+        @keyframes tmode-pulse-gold {
+          0%, 100% { box-shadow: 0 0 16px rgba(212,175,55,0.28); }
+          50% { box-shadow: 0 0 30px rgba(212,175,55,0.55), 0 0 55px rgba(212,175,55,0.22); }
+        }
+        @keyframes tmode-pulse-green {
+          0%, 100% { box-shadow: 0 0 16px rgba(143,255,58,0.32); }
+          50% { box-shadow: 0 0 32px rgba(143,255,58,0.6), 0 0 60px rgba(143,255,58,0.28); }
+        }
+        .tmode {
+          transition: transform .15s ease, background .2s ease, color .2s ease;
+          border-radius: 4px;
+        }
+        .tmode:hover { transform: translateY(-2px) scale(1.02); }
+        .tmode:active { transform: scale(0.97); }
+        .tmode-gold {
+          border-color: #D4AF37; color: #F0D060;
+          background: rgba(212,175,55,0.07);
+          animation: tmode-pulse-gold 2.4s ease-in-out infinite;
+        }
+        .tmode-gold.sel {
+          background: linear-gradient(135deg,#A68B28,#D4AF37,#F0D060,#E8CC7A);
+          color: #0B0B0B;
+          box-shadow: 0 0 34px rgba(212,175,55,0.75), 0 0 64px rgba(212,175,55,0.35);
+          animation: none;
+        }
+        .tmode-green {
+          border-color: #8FFF3A; color: #8FFF3A;
+          background: rgba(143,255,58,0.08);
+          animation: tmode-pulse-green 2.4s ease-in-out infinite;
+        }
+        .tmode-green.sel {
+          background: #8FFF3A;
+          color: #0B0B0B;
+          box-shadow: 0 0 34px rgba(143,255,58,0.8), 0 0 64px rgba(143,255,58,0.38);
+          animation: none;
+        }
+      `}</style>
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
         {([
-          { key: 'manual', icon: '🎯', label: 'Choose My Number' },
-          { key: 'random', icon: '🎲', label: 'Surprise Me' },
-        ] as const).map(({ key, icon, label }) => (
+          { key: 'manual', icon: '🎯', label: 'Choose My Number', theme: 'gold' },
+          { key: 'random', icon: '🎲', label: 'Surprise Me', theme: 'green' },
+        ] as const).map(({ key, icon, label, theme }) => (
           <button
             key={key}
             type="button"
             onClick={() => { setMode(key); setSpinDisplay(null); setManualInput(''); setCheckResult(null) }}
             className={[
-              'py-4 border-2 text-sm font-black uppercase tracking-widest transition-all',
-              mode === key
-                ? 'border-[var(--gold)] bg-[rgba(201,168,76,0.15)] text-[var(--gold)]'
-                : 'border-[var(--black-border)] text-white/40 hover:border-[rgba(201,168,76,0.5)]',
+              'tmode flex flex-col items-center justify-center gap-2 py-6 sm:py-7 border-2 font-black uppercase tracking-widest',
+              theme === 'gold' ? 'tmode-gold' : 'tmode-green',
+              mode === key ? 'sel' : '',
             ].join(' ')}
           >
-            {icon} {label}
+            <span className="text-3xl sm:text-4xl leading-none">{icon}</span>
+            <span className="text-xs sm:text-base text-center leading-tight px-1">{label}</span>
           </button>
         ))}
       </div>
@@ -1105,12 +1198,12 @@ function TicketPicker({ tickets, onSelect }: { tickets: TicketGridItem[]; onSele
         <div className="flex flex-col gap-4">
           <div>
             <label className="block text-[10px] text-white/40 uppercase tracking-widest font-bold mb-2">
-              Enter a number between 000 and 999
+              Enter a number between 001 and 1,000
             </label>
             <input
               type="number"
-              min={0}
-              max={999}
+              min={1}
+              max={1000}
               value={manualInput}
               onChange={(e) => setManualInput(e.target.value)}
               placeholder="e.g. 042"
@@ -1128,9 +1221,9 @@ function TicketPicker({ tickets, onSelect }: { tickets: TicketGridItem[]; onSele
                 <button
                   type="button"
                   disabled={reserving}
-                  onClick={() => confirmSelection(parseInt(manualInput, 10) + 1)}
-                  className="w-full py-4 font-black uppercase tracking-widest text-black text-sm transition-all hover:opacity-90 disabled:opacity-40"
-                  style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A, #C9A84C)' }}
+                  onClick={() => confirmSelection(parseInt(manualInput, 10))}
+                  className="w-full py-4 font-black uppercase tracking-widest text-white text-sm transition-all hover:brightness-110 disabled:opacity-40"
+                  style={{ background: '#8FFF3A', color: '#0B0B0B' }}
                 >
                   {reserving ? 'Reserving…' : `Reserve #${String(parseInt(manualInput, 10)).padStart(3, '0')}`}
                 </button>
@@ -1172,7 +1265,7 @@ function TicketPicker({ tickets, onSelect }: { tickets: TicketGridItem[]; onSele
               type="button"
               onClick={startSpin}
               className="w-full max-w-xs py-4 font-black uppercase tracking-widest text-black text-sm transition-all hover:scale-105 active:scale-95"
-              style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A, #C9A84C)' }}
+              style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A, #D4AF37)' }}
             >
               🎲 Spin the Wheel
             </button>
@@ -1187,9 +1280,9 @@ function TicketPicker({ tickets, onSelect }: { tickets: TicketGridItem[]; onSele
               <button
                 type="button"
                 disabled={reserving}
-                onClick={() => confirmSelection(spinDisplay + 1)}
+                onClick={() => confirmSelection(spinDisplay)}
                 className="w-full py-4 font-black uppercase tracking-widest text-black text-sm transition-all hover:opacity-90 disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A, #C9A84C)' }}
+                style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A, #D4AF37)' }}
               >
                 {reserving ? 'Reserving…' : `Yes! Lock in #${String(spinDisplay).padStart(3, '0')}`}
               </button>
@@ -1274,7 +1367,7 @@ function DailyNumbers() {
                         width: 72, height: 72,
                         fontSize: 32,
                         fontFamily: 'var(--font-dm-mono)',
-                        background: 'linear-gradient(135deg, #8B6914, #D4AF37, #F0D060)',
+                        background: 'linear-gradient(135deg, #A68B28, #D4AF37, #F0D060)',
                         boxShadow: '0 0 20px rgba(212,175,55,0.4)',
                       }}
                     >
@@ -1307,7 +1400,7 @@ function DailyNumbers() {
                         <span
                           key={j}
                           className="inline-flex items-center justify-center w-7 h-7 text-xs font-black text-black rounded-sm"
-                          style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37)' }}
+                          style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37)' }}
                         >
                           {n}
                         </span>
@@ -1354,7 +1447,7 @@ function CheckWinner() {
   }
 
   return (
-    <section id="check-winner" className="py-20 px-4" style={{ background: 'radial-gradient(ellipse at center, #0f0c00 0%, #0A0A0A 70%)' }}>
+    <section id="check-winner" className="py-20 px-4" style={{ background: 'radial-gradient(ellipse at center, #0f0c00 0%, #0B0B0B 70%)' }}>
       <div className="max-w-xl mx-auto text-center">
         <div className="flex items-center gap-4 mb-8">
           <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
@@ -1392,7 +1485,7 @@ function CheckWinner() {
             <button
               onClick={handleCheck}
               className="px-8 py-4 font-black uppercase tracking-widest text-black text-sm transition-all hover:scale-105 active:scale-95 shrink-0"
-              style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37, #F0D060, #D4AF37)' }}
+              style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #F0D060, #D4AF37)' }}
             >
               Check
             </button>
@@ -1403,7 +1496,7 @@ function CheckWinner() {
             <div className="border border-[var(--gold)]/40 bg-[var(--gold)]/5 p-5 text-center">
               <div className="text-3xl mb-2">⏳</div>
               <p className="text-[var(--gold)] font-black uppercase tracking-wider text-sm">Draw Not Yet Held</p>
-              <p className="text-white/40 text-xs mt-1">Check back when ticket #999 is confirmed sold.</p>
+              <p className="text-white/40 text-xs mt-1">Check back when membership #1,000 is confirmed sold.</p>
             </div>
           )}
 
@@ -1488,9 +1581,9 @@ function WhatsAppPromo({ onClose }: { onClose: () => void }) {
             href="/#buy-form"
             onClick={onClose}
             className="flex items-center justify-center w-full py-3.5 font-black uppercase tracking-widest text-black text-sm mb-3 transition-transform hover:scale-105"
-            style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37, #F0D060, #D4AF37)', boxShadow: '0 0 20px rgba(212,175,55,0.4)' }}
+            style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #F0D060, #D4AF37)', boxShadow: '0 0 20px rgba(212,175,55,0.4)' }}
           >
-            🎟 Get My Ticket — $500
+            🎟 Quiero Mi Ticket
           </a>
 
           <a
@@ -1576,10 +1669,15 @@ function BuyForm({ selectedTicket }: { selectedTicket: number | null }) {
         const fd = new FormData()
         fd.append('receipt', receiptFile)
         fd.append('payment_id', result.payment_id)
-        await fetch('/api/purchase/zelle-upload', { method: 'POST', body: fd })
+        const uploadRes = await fetch('/api/purchase/zelle-upload', { method: 'POST', body: fd })
+        if (!uploadRes.ok) {
+          const uploadErr = await uploadRes.json() as { error?: string }
+          throw new Error(uploadErr.error ?? 'Failed to upload receipt. Please try again.')
+        }
       }
       if (data.payment_method === 'stripe' && result.stripe_client_secret) {
-        window.location.href = `/checkout?secret=${result.stripe_client_secret}`
+        sessionStorage.setItem('stripe_cs', result.stripe_client_secret)
+        window.location.href = `/checkout?payment_id=${result.payment_id ?? ''}`
         return
       }
       // Push contact event to Highlead.us browser tracker
@@ -1590,8 +1688,6 @@ function BuyForm({ selectedTicket }: { selectedTicket: number | null }) {
           last_name: data.last_name,
           email: data.email,
           phone: data.phone,
-          city: data.city,
-          state: data.state,
         })
       } catch { /* non-fatal */ }
 
@@ -1614,7 +1710,7 @@ function BuyForm({ selectedTicket }: { selectedTicket: number | null }) {
           You&apos;re In!
         </h3>
         <p className="text-white/60 max-w-md mx-auto leading-relaxed">
-          We received your entry. Your ticket number will be assigned once your Zelle payment is verified (within 24h). Check your email for confirmation.
+          We received your submission. Your membership number will be assigned once your Zelle payment is verified (within 24h). Check your email for confirmation.
         </p>
       </div>
     )
@@ -1638,7 +1734,7 @@ function BuyForm({ selectedTicket }: { selectedTicket: number | null }) {
             <div>
               <p className="text-[10px] uppercase tracking-widest text-[var(--gold)] font-bold">Your Ticket</p>
               <p className="font-black text-white text-xl" style={{ fontFamily: 'var(--font-dm-mono)' }}>
-                #{String(selectedTicket - 1).padStart(3, '0')}
+                #{String(selectedTicket).padStart(3, '0')}
               </p>
             </div>
             <div className="text-xs text-white/30 text-right">
@@ -1657,56 +1753,23 @@ function BuyForm({ selectedTicket }: { selectedTicket: number | null }) {
           </Field>
         </div>
 
-        {/* Emails */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Email" error={errors.email?.message} required>
-            <input {...register('email')} type="email" placeholder="john@email.com" className={inp} />
-          </Field>
-          <Field label="Confirm Email" error={errors.email_confirm?.message} required>
-            <input {...register('email_confirm')} type="email" placeholder="john@email.com" className={inp} />
-          </Field>
-        </div>
-
-        {/* Phones */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Phone" error={errors.phone?.message} required>
-            <input {...register('phone')} type="tel" placeholder="+1 (555) 000-0000" className={inp} />
-          </Field>
-          <Field label="Phone (alternate)" error={undefined}>
-            <input {...register('phone_alt')} type="tel" placeholder="Optional" className={inp} />
-          </Field>
-        </div>
-
-        {/* City & State */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="City" error={errors.city?.message} required>
-            <input {...register('city')} placeholder="Los Angeles" className={inp} />
-          </Field>
-          <Field label="State" error={errors.state?.message} required>
-            <input {...register('state')} placeholder="California" className={inp} />
-          </Field>
-        </div>
-
-        {/* Nationality */}
-        <Field label="Nationality" error={errors.nationality?.message} required>
-          <input {...register('nationality')} placeholder="American" className={inp} />
+        {/* Email */}
+        <Field label="Email" error={errors.email?.message} required>
+          <input {...register('email')} type="email" placeholder="john@email.com" className={inp} />
         </Field>
 
-        {/* Gender */}
-        <Field label="Gender" error={errors.gender?.message} required>
-          <select {...register('gender')} className={inp} defaultValue="">
-            <option value="" disabled>Select gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-            <option value="prefer_not">Prefer not to say</option>
-          </select>
+        {/* Phone */}
+        <Field label="Phone" error={errors.phone?.message} required>
+          <input {...register('phone')} type="tel" placeholder="+1 (555) 000-0000" className={inp} />
         </Field>
 
-        {/* Referral */}
-        <Field label="Referral Code" error={undefined}>
-          <input {...register('ref_code')} placeholder="Auto-filled from invite link" className={inp} />
-        </Field>
+        {/* Referral — optional/secondary */}
+        <div>
+          <label className={lbl + ' mb-1.5 block'}>
+            Referral Code <span className="text-white/25 normal-case font-normal tracking-normal text-[10px]">(optional)</span>
+          </label>
+          <input {...register('ref_code')} placeholder="Auto-filled from invite link" className={inp + ' text-sm opacity-75'} />
+        </div>
 
         {/* Payment toggle */}
         <div>
@@ -1720,7 +1783,7 @@ function BuyForm({ selectedTicket }: { selectedTicket: number | null }) {
                 className={[
                   'py-4 border-2 text-sm font-black uppercase tracking-widest transition-all duration-150',
                   paymentMethod === m
-                    ? 'border-[var(--gold)] bg-[rgba(201,168,76,0.15)] text-[var(--gold)]'
+                    ? 'border-[var(--gold)] bg-[rgba(212,175,55,0.15)] text-[var(--gold)]'
                     : 'border-[var(--black-border)] text-white/40 hover:border-[var(--gold-dark)]',
                 ].join(' ')}
               >
@@ -1736,19 +1799,19 @@ function BuyForm({ selectedTicket }: { selectedTicket: number | null }) {
           <div className="border-2 border-[var(--gold)] bg-[var(--black-card)] p-6 flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <div className="w-2 h-8 bg-[var(--gold)]" />
-              <p className="text-[var(--gold)] font-black uppercase tracking-widest text-sm">Send $500 via Zelle</p>
+              <p className="text-[var(--gold)] font-black uppercase tracking-widest text-sm">Send $500 via Zelle to Join</p>
             </div>
             <div className="space-y-2 font-mono text-sm">
               <p className="flex items-center gap-3">
-                <span className="text-white/35 uppercase text-[10px] tracking-widest w-12">Phone</span>
-                <span className="text-white font-bold">{process.env.NEXT_PUBLIC_ZELLE_PHONE ?? '(see website)'}</span>
+                <span className="text-white/35 uppercase text-[10px] tracking-widest w-12 shrink-0">Email</span>
+                <span className="text-[var(--gold)] font-bold">Goldenvalleymembers@gmail.com</span>
               </p>
               <p className="flex items-center gap-3">
-                <span className="text-white/35 uppercase text-[10px] tracking-widest w-12">Name</span>
+                <span className="text-white/35 uppercase text-[10px] tracking-widest w-12 shrink-0">Name</span>
                 <span className="text-white font-bold">Golden Valley Members LLC</span>
               </p>
               <p className="flex items-center gap-3">
-                <span className="text-white/35 uppercase text-[10px] tracking-widest w-12">Memo</span>
+                <span className="text-white/35 uppercase text-[10px] tracking-widest w-12 shrink-0">Memo</span>
                 <span className="text-white font-bold">Your full name</span>
               </p>
             </div>
@@ -1787,33 +1850,26 @@ function BuyForm({ selectedTicket }: { selectedTicket: number | null }) {
             className={[
               'mt-4 w-full py-3 text-sm font-black uppercase tracking-widest transition-all border-2',
               termsAccepted
-                ? 'border-[var(--gold)] text-[var(--gold)] bg-[rgba(201,168,76,0.08)]'
+                ? 'border-[var(--gold)] text-[var(--gold)] bg-[rgba(212,175,55,0.08)]'
                 : 'border-white/20 text-white/60 hover:border-white/40',
             ].join(' ')}
           >
             {termsAccepted ? '✓ Terms Accepted & Signed — Click to Review Again' : 'Read & Sign Terms & Conditions →'}
           </button>
 
-          <input type="hidden" {...register('agreed_terms')} value={termsAccepted ? 'true' : ''} />
+          <input type="hidden" {...register('agreed_terms')} />
           {errors.agreed_terms && (
             <p className="text-[10px] text-[#FF4E00] font-bold uppercase tracking-wider mt-2">{errors.agreed_terms.message}</p>
           )}
         </div>
 
-        {/* Remaining checkboxes */}
-        <div className="space-y-3">
-          {[
-            { id: 'agreed_accuracy', label: 'All information provided is accurate', reg: register('agreed_accuracy'), err: errors.agreed_accuracy?.message },
-            { id: 'agreed_age', label: 'I am 18 years of age or older', reg: register('agreed_age'), err: errors.agreed_age?.message },
-          ].map(({ id, label, reg, err }) => (
-            <div key={id}>
-              <label htmlFor={id} className="flex items-start gap-3 cursor-pointer group">
-                <input id={id} type="checkbox" {...reg} className="mt-0.5 w-4 h-4 accent-[var(--gold)] shrink-0" />
-                <span className="text-sm text-white/50 group-hover:text-white/75 transition-colors">{label}</span>
-              </label>
-              {err && <p className="text-[10px] text-[#FF4E00] font-bold uppercase tracking-wider mt-1 ml-7">{err}</p>}
-            </div>
-          ))}
+        {/* Age confirmation checkbox */}
+        <div>
+          <label htmlFor="agreed_age" className="flex items-start gap-3 cursor-pointer group">
+            <input id="agreed_age" type="checkbox" {...register('agreed_age')} className="mt-0.5 w-4 h-4 accent-[var(--gold)] shrink-0" />
+            <span className="text-sm text-white/50 group-hover:text-white/75 transition-colors">I confirm I am 18 years of age or older</span>
+          </label>
+          {errors.agreed_age && <p className="text-[10px] text-[#FF4E00] font-bold uppercase tracking-wider mt-1 ml-7">{errors.agreed_age.message}</p>}
         </div>
 
         {submitError && (
@@ -1825,10 +1881,10 @@ function BuyForm({ selectedTicket }: { selectedTicket: number | null }) {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full py-5 font-black uppercase tracking-widest text-black text-lg transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-40 flex items-center justify-center gap-3"
-          style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A, #C9A84C)', backgroundSize: '200% auto', animation: 'shimmer 2s linear infinite' }}
+          className="w-full py-5 font-black uppercase tracking-widest text-white text-lg transition-all hover:brightness-110 active:scale-[0.99] disabled:opacity-40 flex items-center justify-center gap-3"
+          style={{ background: '#8FFF3A', color: '#0B0B0B', boxShadow: '0 0 25px rgba(143,255,58,0.35)' }}
         >
-          {submitting ? <><GoldSpinner size={20} /> Processing...</> : `Claim My Ticket — $${TICKET_PRICE}`}
+          {submitting ? <><GoldSpinner size={20} /> Processing...</> : `CLAIM MY MEMBERSHIP — $${TICKET_PRICE}`}
         </button>
 
         <p className="text-white/25 text-xs text-center uppercase tracking-widest">
@@ -1845,7 +1901,6 @@ export default function HomePage() {
   const [available, setAvailable] = useState<number | null>(null)
   const [tickets, setTickets] = useState<TicketGridItem[]>([])
   const [showPromo, setShowPromo] = useState(false)
-  const [selectedTicket, setSelectedTicket] = useState<number | null>(null)
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -1856,9 +1911,17 @@ export default function HomePage() {
         setTickets(data)
         setAvailable(data.filter((t) => t.status === 'available').length)
       } catch {
-        const grid: TicketGridItem[] = Array.from({ length: 1000 }, (_, i) => ({ number: i + 1, status: 'available' as const }))
+        // Demo: simulate 990 sold memberships scattered randomly (seeded so consistent)
+        const sold = new Set<number>()
+        let s = 0xdeadbeef
+        const rand = () => { s = Math.imul(s ^ (s >>> 13), 0x45d9f3b); s ^= s >>> 7; return (s >>> 0) / 0xffffffff }
+        while (sold.size < 990) sold.add(Math.floor(rand() * 1000) + 1)
+        const grid: TicketGridItem[] = Array.from({ length: 1000 }, (_, i) => ({
+          number: i + 1,
+          status: sold.has(i + 1) ? 'active' as const : 'available' as const,
+        }))
         setTickets(grid)
-        setAvailable(1000)
+        setAvailable(grid.filter((t) => t.status === 'available').length)
       }
     }
     fetchTickets()
@@ -1870,97 +1933,75 @@ export default function HomePage() {
     const id = setTimeout(() => {
       setShowPromo(true)
       sessionStorage.setItem('promoSeen', '1')
-    }, 3000)
+    }, 8000)
     return () => clearTimeout(id)
   }, [])
 
   return (
-    <div className="bg-[#0A0A0A]">
-      {showPromo && <WhatsAppPromo onClose={() => setShowPromo(false)} />}
-      <FloatingWhatsApp />
+    <div className="bg-[#0B0B0B]">
       <UrgencyBanner available={available} />
-      <div className="h-[52px] sm:h-[36px]" />
+      <div className="h-7" />
       <SiteHeader />
 
       <Hero available={available} />
-      <TrustStrip />
-      <PrizesSection />
-      <HowItWorks />
-      <WinnersSection />
-      <DailyNumbers />
-      <CheckWinner />
 
-      {tickets.length > 0 && <TeaserGrid tickets={tickets} />}
-
-      {/* Buy Ticket */}
-      <section id="buy-form" className="py-20 px-4" style={{ background: '#0d0d0d' }}>
+      {/* Number picker — selecting a number redirects to register */}
+      <section id="buy-form" className="py-14 sm:py-20 px-4 relative" style={{ background: '#0B0B0B', borderTop: '3px solid #82BF35' }}>
         <div className="max-w-2xl mx-auto">
-          <div className="flex items-center gap-4 mb-10">
-            <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
-            <span className="text-[var(--gold)] text-xs uppercase tracking-[0.4em] font-bold whitespace-nowrap">
-              Secure Your Entry
-            </span>
-            <div className="h-px flex-1 bg-[var(--gold)] opacity-30" />
-          </div>
-          <div className="text-center mb-10">
+          <div className="text-center mb-8 sm:mb-10">
             <h2
               className="font-black uppercase text-white mb-2"
               style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.8rem, 5vw, 3rem)' }}
             >
-              Get Your Ticket
+              Choose Your Number
             </h2>
             <p className="text-white/40 text-sm uppercase tracking-widest">
-              {available !== null ? available : '…'} spots remaining
+              {available !== null ? available : '…'} spots remaining · pick your lucky number
             </p>
           </div>
 
-          {/* Step 1: Pick a ticket number */}
-          <div className="border border-[var(--black-border)] bg-[var(--black-card)] p-6 md:p-8 mb-6">
-            <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--gold)] font-bold mb-6 flex items-center gap-3">
-              <span
-                className="w-5 h-5 rounded-full border border-[var(--gold)] inline-flex items-center justify-center shrink-0"
-                style={{ fontSize: '10px' }}
-              >1</span>
-              Choose Your Ticket Number
-            </p>
-            <TicketPicker
-              tickets={tickets}
-              onSelect={(n) => setSelectedTicket(n > 0 ? n : null)}
-            />
+          <div className="border border-[var(--black-border)] bg-[var(--black-card)] p-5 sm:p-8 mb-5">
+            <TicketPicker tickets={tickets} />
           </div>
 
-          {/* Step 2: Personal info + payment */}
-          <div className="border border-[var(--black-border)] bg-[var(--black-card)] p-6 md:p-10">
-            <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--gold)] font-bold mb-6 flex items-center gap-3">
-              <span
-                className="w-5 h-5 rounded-full border border-[var(--gold)] inline-flex items-center justify-center shrink-0"
-                style={{ fontSize: '10px' }}
-              >2</span>
-              Your Information &amp; Payment
-            </p>
-            <BuyForm selectedTicket={selectedTicket} />
+          <div className="text-center">
+            <p className="text-white/30 text-xs mb-3 uppercase tracking-widest">Don't want to pick? We'll assign one for you</p>
+            <Link
+              href="/register"
+              className="inline-flex items-center gap-2 font-black uppercase tracking-widest text-black text-sm px-8 py-4 hover:brightness-110 transition-all"
+              style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A, #D4AF37)' }}
+            >
+              Register &amp; Get Started →
+            </Link>
           </div>
         </div>
       </section>
 
+      {/* More info below — prizes, how it works, ticket board */}
+      <TrustStrip />
+      <LotterySection />
+      <PrizesSection />
+      <HowItWorks />
+      {tickets.length > 0 && <TeaserGrid tickets={tickets} />}
+
       {/* Pre-footer CTA */}
-      <section className="py-16 px-4 text-center" style={{ background: 'radial-gradient(ellipse at center, #1a1200 0%, #0A0A0A 70%)' }}>
-        <p className="text-[var(--gold)] text-xs uppercase tracking-[0.4em] font-bold mb-3">Don&apos;t Miss Out</p>
+      <section className="py-14 sm:py-16 px-4 text-center" style={{ background: 'radial-gradient(ellipse at center, #1a0000 0%, #0B0B0B 70%)' }}>
+        <p className="text-white/40 text-[10px] sm:text-xs uppercase tracking-[0.4em] font-bold mb-3">Don&apos;t Miss Your Spot</p>
         <h2
-          className="font-black uppercase text-white mb-4"
+          className="font-black uppercase text-white mb-2"
           style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.8rem, 5vw, 3rem)' }}
         >
-          {available !== null ? available : '…'} Tickets Remaining
+          <span style={{ fontFamily: 'var(--font-dm-mono)', color: '#8FFF3A' }}>{available ?? 1000}</span> Memberships Left
         </h2>
         <p className="text-white/40 mb-8 max-w-md mx-auto text-sm leading-relaxed">
-          Once all 1,000 tickets are sold, the draw happens instantly. Make sure yours is one of them.
+          The grand prize is revealed the moment membership #1,000 is confirmed. Spots are strictly limited.
         </p>
         <button
           onClick={() => document.getElementById('buy-form')?.scrollIntoView({ behavior: 'smooth' })}
-          className="font-black uppercase tracking-widest text-black px-12 py-4 text-base transition-all hover:scale-105 active:scale-95"
-          style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A, #C9A84C)', backgroundSize: '200% auto', animation: 'shimmer 2s linear infinite' }}
+          className="w-full sm:w-auto font-black uppercase tracking-widest text-white px-10 sm:px-12 py-4 sm:py-5 text-base transition-all hover:brightness-110 active:scale-95"
+          style={{ background: '#8FFF3A', color: '#0B0B0B', boxShadow: '0 0 30px rgba(143,255,58,0.35)' }}
         >
-          Get My Ticket — $500
+          GET MY MEMBERSHIP →
         </button>
       </section>
     </div>

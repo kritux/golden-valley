@@ -161,12 +161,12 @@ California residents may also file a complaint with the California Privacy Prote
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
+    <div className="min-h-screen bg-[#0B0B0B]">
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-[var(--black-border)]" style={{ background: 'rgba(10,10,10,0.97)', backdropFilter: 'blur(14px)' }}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 flex items-center justify-center font-black text-xs tracking-widest text-black" style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A)' }}>
+            <div className="w-8 h-8 flex items-center justify-center font-black text-xs tracking-widest text-black" style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A)' }}>
               GV
             </div>
             <span className="hidden sm:block text-xs font-black uppercase tracking-[0.2em] text-white/60 group-hover:text-white transition-colors">Golden Valley Members</span>
@@ -178,7 +178,7 @@ export default function PrivacyPage() {
       </header>
 
       {/* Hero */}
-      <section className="py-16 px-4 border-b border-[var(--black-border)]" style={{ background: 'radial-gradient(ellipse at top, #1a1200 0%, #0A0A0A 70%)' }}>
+      <section className="py-16 px-4 border-b border-[var(--black-border)]" style={{ background: 'radial-gradient(ellipse at top, #1a1200 0%, #0B0B0B 70%)' }}>
         <div className="max-w-3xl mx-auto">
           <p className="text-[var(--gold)] text-[10px] font-black uppercase tracking-[0.4em] mb-3">Legal</p>
           <h1 className="font-black uppercase text-white leading-tight mb-3" style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>

@@ -38,7 +38,7 @@ export function GoldButton({
         sizeClasses[size],
         isDisabled
           ? 'opacity-50 cursor-not-allowed'
-          : 'hover:shadow-[0_0_24px_rgba(201,168,76,0.5)] hover:scale-[1.02] active:scale-[0.98]',
+          : 'hover:shadow-[0_0_24px_rgba(212,175,55,0.5)] hover:scale-[1.02] active:scale-[0.98]',
         className,
       ].join(' ')}
     >

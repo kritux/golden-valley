@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ available: false, error: 'Invalid number' }, { status: 400 })
   }
 
-  if (isReservedByOther(n, sessionId)) {
+  if (await isReservedByOther(n, sessionId)) {
     return NextResponse.json({ available: false, reserved: true })
   }
 

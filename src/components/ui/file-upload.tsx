@@ -103,7 +103,7 @@ export function FileUpload({
           'border border-dashed rounded-sm p-6 text-center cursor-pointer',
           'transition-all duration-200',
           dragging
-            ? 'border-[var(--gold)] bg-[rgba(201,168,76,0.07)]'
+            ? 'border-[var(--gold)] bg-[rgba(212,175,55,0.07)]'
             : 'border-[var(--black-border)] hover:border-[var(--gold-dark)] hover:bg-[var(--black-card)]',
         ].join(' ')}
       >

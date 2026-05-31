@@ -175,7 +175,7 @@ export default function AdminPaymentsPage() {
                       })}
                     </td>
                     <td className="px-5 py-3">
-                      {p.status === 'under_review' ? (
+                      {(p.status === 'under_review' || p.status === 'pending') ? (
                         <button
                           onClick={() => { setSelectedPayment(p); setModalAction('verify') }}
                           className="text-[var(--gold)] text-xs uppercase tracking-widest hover:text-[var(--gold-light)] transition-colors border border-[var(--gold)]/30 px-3 py-1 rounded-sm hover:border-[var(--gold)] whitespace-nowrap"

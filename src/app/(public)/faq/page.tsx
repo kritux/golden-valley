@@ -172,13 +172,13 @@ export default function FAQPage() {
       {/* Header */}
       <div
         className="sticky top-0 z-40 w-full border-b"
-        style={{ background: 'rgba(10,10,10,0.97)', borderColor: 'rgba(201,168,76,0.12)', backdropFilter: 'blur(14px)' }}
+        style={{ background: 'rgba(10,10,10,0.97)', borderColor: 'rgba(212,175,55,0.12)', backdropFilter: 'blur(14px)' }}
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
           <Link href="/" className="flex items-center gap-2.5 group">
             <div
               className="w-8 h-8 flex items-center justify-center font-black text-xs tracking-widest text-black shrink-0"
-              style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A)' }}
+              style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A)' }}
             >
               GV
             </div>
@@ -189,7 +189,7 @@ export default function FAQPage() {
           <Link
             href="/#buy-form"
             className="text-[10px] font-black uppercase tracking-widest text-black px-4 py-2 transition-all hover:opacity-90"
-            style={{ background: 'linear-gradient(135deg, #8B6914, #C9A84C, #E8CC7A)' }}
+            style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #E8CC7A)' }}
           >
             Get Ticket
           </Link>
@@ -228,7 +228,7 @@ export default function FAQPage() {
           <Link
             href="/#buy-form"
             className="font-black uppercase tracking-widest text-black px-10 py-4 text-sm transition-all hover:scale-105"
-            style={{ background: 'linear-gradient(135deg, #8B6914, #D4AF37, #F0D060, #D4AF37)', boxShadow: '0 0 24px rgba(212,175,55,0.4)' }}
+            style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37, #F0D060, #D4AF37)', boxShadow: '0 0 24px rgba(212,175,55,0.4)' }}
           >
             🎟 Get Your Ticket — $500
           </Link>

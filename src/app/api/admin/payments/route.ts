@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     .from('payments')
     .select(`
       id, amount, method, status, created_at, updated_at, zelle_receipt_url, notes,
-      ticket:tickets(id, ticket_number),
+      ticket:tickets!fk_payments_ticket_id(id, ticket_number),
       buyer:profiles!payments_buyer_id_fkey(id, first_name, last_name, email),
       confirmed_by:profiles!payments_zelle_confirmed_by_fkey(first_name, last_name)
     `, { count: 'exact' })
@@ -37,5 +37,5 @@ export async function GET(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: 'Failed to fetch payments' }, { status: 500 })
 
-  return NextResponse.json({ data, total: count, page, limit })
+  return NextResponse.json({ data, total: count, page, per_page: limit })
 }

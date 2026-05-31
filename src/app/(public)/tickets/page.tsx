@@ -143,8 +143,8 @@ export default function TicketsPage() {
           </div>
         ) : (
           <div
-            className="grid gap-1"
-            style={{ gridTemplateColumns: 'repeat(25, minmax(0, 1fr))' }}
+            className="grid gap-0.5"
+            style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(34px, 1fr))' }}
           >
             {tickets.map((ticket) => (
               <div
@@ -157,11 +157,12 @@ export default function TicketsPage() {
                   if (e.key === 'Enter' || e.key === ' ') handleTicketClick(ticket)
                 }}
                 className={[
-                  'aspect-square rounded-sm flex items-center justify-center',
-                  'font-[var(--font-dm-mono)] text-[9px] transition-all duration-150',
+                  'rounded-sm flex items-center justify-center',
+                  'font-[var(--font-dm-mono)] transition-all duration-150',
                   'select-none',
                   cellStyle(ticket.status),
                 ].join(' ')}
+                style={{ height: 34, fontSize: 10 }}
               >
                 {String(ticket.number - 1).padStart(3, '0')}
               </div>
@@ -192,7 +193,7 @@ export default function TicketsPage() {
         <div className="mt-12 text-center">
           <Link
             href="/#buy-form"
-            className="inline-flex items-center gap-3 btn-gold-shimmer text-[var(--black)] font-semibold uppercase tracking-widest text-sm px-8 py-4 rounded-sm hover:shadow-[0_0_24px_rgba(201,168,76,0.5)] transition-all duration-200"
+            className="inline-flex items-center gap-3 btn-gold-shimmer text-[var(--black)] font-semibold uppercase tracking-widest text-sm px-8 py-4 rounded-sm hover:shadow-[0_0_24px_rgba(212,175,55,0.5)] transition-all duration-200"
           >
             GET YOUR TICKET — $500
           </Link>

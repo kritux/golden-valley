@@ -6,6 +6,75 @@ import { StatCard } from '@/components/ui/stat-card'
 import { GoldSpinner } from '@/components/ui/gold-button'
 import type { AdminStats } from '@/types'
 
+function LotteryWidget() {
+  const [digits, setDigits] = useState('')
+  const [current, setCurrent] = useState<{ digits: string; date: string } | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch('/api/lottery').then(r => r.ok ? r.json() : null).then(d => {
+      if (d?.digits) setCurrent({ digits: d.digits, date: d.date ?? '' })
+    }).catch(() => {})
+  }, [])
+
+  async function save() {
+    if (!/^\d{3}$/.test(digits)) { setMsg('Must be exactly 3 digits'); return }
+    setSaving(true); setMsg(null)
+    const res = await fetch('/api/lottery', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ digits }),
+    })
+    const d = await res.json()
+    if (res.ok) { setCurrent({ digits: d.digits, date: d.date }); setMsg('Saved!'); setDigits('') }
+    else setMsg(d.error ?? 'Error')
+    setSaving(false)
+  }
+
+  return (
+    <div className="bg-[var(--black-card)] border border-[var(--black-border)] rounded-sm p-5 mb-8">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-[10px] uppercase tracking-widest font-bold" style={{ color: '#D4AF37' }}>Tris 7pm · Daily Lottery Number</p>
+          {current && <p className="text-white/40 text-xs mt-0.5">Current: <strong className="text-[#D4AF37] font-mono">{current.digits}</strong> · {current.date}</p>}
+        </div>
+        <div className="flex gap-2 items-center">
+          <div className="flex gap-1.5">
+            {(current?.digits ?? '???').split('').map((d, i) => (
+              <div key={i} className="w-9 h-10 flex items-center justify-center font-black text-xl rounded-sm"
+                style={{ fontFamily: 'var(--font-dm-mono)', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)', color: '#D4AF37' }}>
+                {d}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-3 items-end">
+        <div className="flex-1">
+          <p className="text-[10px] uppercase tracking-widest text-[var(--white-muted)] font-bold mb-1.5">Override / Set Today's Number</p>
+          <input
+            value={digits}
+            onChange={e => { setDigits(e.target.value.replace(/\D/g,'').slice(0,3)); setMsg(null) }}
+            placeholder="e.g. 427"
+            maxLength={3}
+            className="w-full bg-[var(--black-surface)] border border-[var(--black-border)] text-white text-sm px-3 py-2 outline-none focus:border-[var(--gold)] transition-colors font-mono tracking-[0.4em] placeholder:tracking-normal"
+          />
+        </div>
+        <button
+          onClick={save}
+          disabled={saving || digits.length !== 3}
+          className="px-5 py-2 text-sm font-black uppercase tracking-widest text-black disabled:opacity-40 flex items-center gap-2"
+          style={{ background: 'linear-gradient(135deg, #A68B28, #D4AF37)' }}
+        >
+          {saving ? <GoldSpinner size={14} /> : null} Set
+        </button>
+      </div>
+      {msg && <p className={`text-xs mt-2 ${msg === 'Saved!' ? 'text-green-400' : 'text-red-400'}`}>{msg}</p>}
+    </div>
+  )
+}
+
 export default function AdminOverviewPage() {
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -51,6 +120,9 @@ export default function AdminOverviewPage() {
           Golden Valley Members — Raffle Dashboard
         </p>
       </div>
+
+      {/* Lottery Widget */}
+      <LotteryWidget />
 
       {/* KPI Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">

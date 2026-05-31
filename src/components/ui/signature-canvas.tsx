@@ -39,7 +39,7 @@ export function SignatureCanvasComponent({
           'bg-white',
           'w-full min-w-0',
         ].join(' ')}
-        style={{ minHeight: 150 }}
+        style={{ minHeight: 220 }}
       >
         <SignatureCanvas
           ref={sigRef}
@@ -47,10 +47,13 @@ export function SignatureCanvasComponent({
           penColor="#1a1a1a"
           canvasProps={{
             className: 'w-full',
-            style: { width: '100%', height: 150, display: 'block', background: '#fff' },
+            style: { width: '100%', height: 220, display: 'block', background: '#fff' },
           }}
         />
       </div>
+      <p className="text-[10px] text-[var(--white-muted)] italic">
+        ✍️ Draw your signature above with your finger or mouse
+      </p>
       <button
         type="button"
         onClick={handleClear}

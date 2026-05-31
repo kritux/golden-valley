@@ -1,37 +1,51 @@
-// In-memory ticket reservation store (15-min TTL)
-// Prevents two users from selecting the same ticket simultaneously.
-// NOTE: Resets on server restart — acceptable for MVP single-instance deploy.
+// Supabase-backed ticket reservation store (15-min TTL).
+// Replaces the in-memory Map that reset on every Vercel cold start.
 
-interface Reservation {
-  expiresAt: number
-  sessionId: string
+import { createAdminClient } from '@/lib/supabase/server'
+
+const TTL_MS = 15 * 60 * 1000 // 15 minutes
+
+export async function reserveTicket(
+  ticketNumber: number,
+  sessionId: string,
+): Promise<{ expiresAt: number }> {
+  const supabase = await createAdminClient()
+  const expiresAt = new Date(Date.now() + TTL_MS)
+
+  await supabase.from('ticket_reservations').upsert(
+    { ticket_number: ticketNumber, session_id: sessionId, expires_at: expiresAt.toISOString() },
+    { onConflict: 'ticket_number' },
+  )
+
+  return { expiresAt: expiresAt.getTime() }
 }
 
-const store = new Map<number, Reservation>()
+/** Returns true if ticket is reserved by someone OTHER than sessionId. */
+export async function isReservedByOther(
+  ticketNumber: number,
+  sessionId: string,
+): Promise<boolean> {
+  const supabase = await createAdminClient()
 
-function purgeExpired() {
-  const now = Date.now()
-  store.forEach((res, num) => {
-    if (res.expiresAt < now) store.delete(num)
-  })
+  const { data } = await supabase
+    .from('ticket_reservations')
+    .select('session_id')
+    .eq('ticket_number', ticketNumber)
+    .gt('expires_at', new Date().toISOString())
+    .maybeSingle()
+
+  if (!data) return false
+  return data.session_id !== sessionId
 }
 
-export function reserveTicket(ticketNumber: number, sessionId: string): { expiresAt: number } {
-  purgeExpired()
-  const expiresAt = Date.now() + 15 * 60 * 1000
-  store.set(ticketNumber, { expiresAt, sessionId })
-  return { expiresAt }
-}
-
-/** Returns true if the ticket is reserved by SOMEONE ELSE. */
-export function isReservedByOther(ticketNumber: number, sessionId: string): boolean {
-  purgeExpired()
-  const res = store.get(ticketNumber)
-  if (!res) return false
-  return res.sessionId !== sessionId
-}
-
-export function releaseReservation(ticketNumber: number, sessionId: string): void {
-  const res = store.get(ticketNumber)
-  if (res?.sessionId === sessionId) store.delete(ticketNumber)
+export async function releaseReservation(
+  ticketNumber: number,
+  sessionId: string,
+): Promise<void> {
+  const supabase = await createAdminClient()
+  await supabase
+    .from('ticket_reservations')
+    .delete()
+    .eq('ticket_number', ticketNumber)
+    .eq('session_id', sessionId)
 }
