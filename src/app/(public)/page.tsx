@@ -349,6 +349,12 @@ function Hero({ available }: { available: number | null }) {
       id="about"
       className="relative min-h-[100svh] flex flex-col items-center justify-end text-center px-4 pb-8 sm:pb-12 overflow-hidden bg-black"
     >
+      <style>{`
+        @keyframes hero-gold-shine {
+          0% { background-position: 200% center; }
+          100% { background-position: -200% center; }
+        }
+      `}</style>
       <video
         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         style={{ objectPosition: 'center 40%' }}
@@ -366,7 +372,7 @@ function Hero({ available }: { available: number | null }) {
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.88) 35%, rgba(0,0,0,0.4) 65%, rgba(0,0,0,0.15) 100%)' }} />
 
       <div className="relative z-10 max-w-3xl w-full">
-        <p className="text-[10px] sm:text-xs uppercase tracking-[0.4em] font-bold mb-3" style={{ color: '#D4AF37' }}>
+        <p className="text-sm sm:text-base uppercase tracking-[0.4em] font-bold mb-3 text-white" style={{ textShadow: '0 2px 14px rgba(0,0,0,0.7)' }}>
           Season 1 · 1,000 Memberships Only
         </p>
 
@@ -376,12 +382,13 @@ function Hero({ available }: { available: number | null }) {
           style={{
             fontFamily: 'var(--font-playfair)',
             fontSize: 'clamp(2.6rem, 11vw, 7rem)',
-            textShadow: '0 2px 40px rgba(0,0,0,0.9)',
-            background: 'linear-gradient(135deg, #A68B28 0%, #D4AF37 35%, #F8E48A 55%, #D4AF37 75%, #A68B28 100%)',
-            backgroundSize: '200% auto',
+            filter: 'drop-shadow(0 2px 40px rgba(0,0,0,0.9))',
+            background: 'linear-gradient(90deg, #A68B28 0%, #D4AF37 18%, #F8E48A 38%, #FFFDE0 50%, #F8E48A 62%, #D4AF37 82%, #A68B28 100%)',
+            backgroundSize: '300% auto',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
+            animation: 'hero-gold-shine 4.5s linear infinite',
           }}
         >
           WIN A 4RUNNER
@@ -393,13 +400,13 @@ function Hero({ available }: { available: number | null }) {
           <div className="flex items-baseline gap-2">
             <span
               className="font-black uppercase"
-              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(1.3rem, 4vw, 2.2rem)', color: '#D4AF37', textShadow: '0 0 20px rgba(212,175,55,0.8)' }}
+              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(1.7rem, 5vw, 2.9rem)', color: '#FFFFFF', textShadow: '0 0 20px rgba(255,255,255,0.5), 0 2px 14px rgba(0,0,0,0.7)' }}
             >
               OR
             </span>
             <span
               className="font-black uppercase"
-              style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.5rem, 5.5vw, 3.5rem)', color: '#8FFF3A', textShadow: '0 0 30px rgba(143,255,58,0.7)' }}
+              style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.9rem, 7vw, 4.5rem)', color: '#FFFFFF', textShadow: '0 0 30px rgba(255,255,255,0.45), 0 2px 20px rgba(0,0,0,0.7)' }}
             >
               $70,000 CASH
             </span>
@@ -411,12 +418,12 @@ function Hero({ available }: { available: number | null }) {
         <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-5 sm:mb-7 max-w-xs sm:max-w-sm mx-auto">
           <div className="border border-white/15 bg-black/60 backdrop-blur-sm px-3 sm:px-4 py-3 text-left" style={{ boxShadow: '0 0 20px rgba(255,255,255,0.04)' }}>
             <p className="text-white/40 text-[8px] sm:text-[10px] uppercase tracking-widest font-bold mb-1">2nd Prize</p>
-            <p className="font-black" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(1.2rem, 4.5vw, 1.8rem)', background: 'linear-gradient(135deg,#A68B28,#D4AF37,#E8CC7A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', filter: 'drop-shadow(0 0 6px rgba(212,175,55,0.5))' }}>$20,000</p>
+            <p className="font-black whitespace-nowrap" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(1.35rem, 4.8vw, 2rem)', background: 'linear-gradient(90deg, #A68B28 0%, #D4AF37 18%, #F8E48A 38%, #FFFDE0 50%, #F8E48A 62%, #D4AF37 82%, #A68B28 100%)', backgroundSize: '300% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'hero-gold-shine 4.5s linear infinite' }}>$20,000</p>
             <p className="text-white/35 text-[7px] sm:text-[9px] uppercase tracking-wider">Cash · 2nd Selection</p>
           </div>
           <div className="border border-[#D4AF37]/35 bg-[#D4AF37]/8 backdrop-blur-sm px-3 sm:px-4 py-3 text-left" style={{ boxShadow: '0 0 20px rgba(212,175,55,0.08)' }}>
             <p className="text-[#D4AF37]/70 text-[8px] sm:text-[10px] uppercase tracking-widest font-bold mb-1">Daily Prize</p>
-            <p className="font-black" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(1.2rem, 4.5vw, 1.8rem)', color: '#8FFF3A', textShadow: '0 0 12px rgba(143,255,58,0.8), 0 0 24px rgba(143,255,58,0.4)' }}>$1,000</p>
+            <p className="font-black whitespace-nowrap" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 'clamp(1.35rem, 4.8vw, 2rem)', color: '#8FFF3A', textShadow: '0 0 12px rgba(143,255,58,0.8), 0 0 24px rgba(143,255,58,0.4)' }}>$1,000</p>
             <p className="text-[#D4AF37]/50 text-[7px] sm:text-[9px] uppercase tracking-wider">Per day × 90 days</p>
           </div>
         </div>
@@ -506,6 +513,14 @@ function LotterySection() {
           <div>
             <p className="text-[10px] uppercase tracking-[0.4em] font-bold" style={{ color: '#D4AF37' }}>Daily Tris 7pm · Número Ganador</p>
             {date && <p className="text-white/30 text-[10px] mt-0.5">{date}</p>}
+            <a
+              href="https://loterianacional.gob.mx/Home/Resultados"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[var(--gold)] text-[10px] font-bold uppercase tracking-wider mt-1.5 hover:text-[var(--gold-light)] transition-colors underline underline-offset-2 decoration-[var(--gold)]/40"
+            >
+              Verificar resultado oficial →
+            </a>
           </div>
         </div>
 
@@ -606,7 +621,7 @@ function PrizesSection() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/assets/4runner-golden-gate.png"
-                  alt="2027 Toyota 4Runner"
+                  alt="2026 Toyota 4Runner"
                   className="w-full h-full object-cover"
                   style={{ objectPosition: 'center 55%' }}
                 />
@@ -619,7 +634,7 @@ function PrizesSection() {
               >
                 Toyota<br />4Runner
               </p>
-              <p className="text-white/40 text-[10px] uppercase tracking-widest mt-1 font-bold">2027 Edition</p>
+              <p className="text-white/40 text-[10px] uppercase tracking-widest mt-1 font-bold">2026 Edition</p>
             </div>
 
             {/* OR divider */}
@@ -689,22 +704,8 @@ function PrizesSection() {
           </div>
         </div>
 
-        {/* Odds callout */}
-        <div className="relative overflow-hidden border border-[#D4AF37]/30 p-8 sm:p-14 text-center" style={{ background: 'radial-gradient(ellipse at center, #120f00 0%, #080808 65%)', boxShadow: '0 0 80px rgba(212,175,55,0.06)' }}>
-          <p className="text-[10px] sm:text-xs uppercase tracking-[0.5em] font-bold mb-4" style={{ color: '#D4AF37' }}>
-            Why Your Odds Are Exceptional
-          </p>
-          <h3
-            className="font-black uppercase text-white leading-tight mb-5"
-            style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.8rem, 6vw, 4rem)' }}
-          >
-            Your Chances Are<br className="hidden sm:block" /> Incredibly High
-          </h3>
-          <p className="text-white/45 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed mb-8">
-            Only 1,000 memberships — ever. With 90 daily prizes distributed across the member pool,
-            <strong className="text-white"> nearly 1 in 11 members</strong> can receive a daily prize.
-            These are exceptional odds compared to any traditional contest.
-          </p>
+        {/* CTA */}
+        <div className="text-center">
           <button
             onClick={() => document.getElementById('buy-form')?.scrollIntoView({ behavior: 'smooth' })}
             className="w-full sm:w-auto font-black uppercase tracking-widest text-white px-10 sm:px-16 py-4 sm:py-5 text-sm sm:text-base transition-all hover:brightness-110 active:scale-95"
@@ -721,6 +722,7 @@ function PrizesSection() {
 // ─── HOW IT WORKS ─────────────────────────────────────────────────────────────
 
 function HowItWorks() {
+  const [openStep, setOpenStep] = useState<string | null>(null)
   const steps = [
     {
       num: '01',
@@ -787,37 +789,59 @@ function HowItWorks() {
           >
             4 Simple Steps
           </h2>
+          <p className="text-white/30 text-[10px] uppercase tracking-widest mt-2">Tap each step to see the details</p>
         </div>
 
-        {/* Steps — compact rows */}
+        {/* Steps — collapsible rows */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[var(--black-border)]">
-          {steps.map((step) => (
-            <div
-              key={step.num}
-              className="bg-[var(--black-card)] px-5 py-5 flex items-start gap-4 hover:bg-[#100e06] transition-colors"
-            >
-              {/* Number circle */}
-              <div
-                className="w-9 h-9 flex items-center justify-center font-black text-sm shrink-0 mt-0.5"
-                style={{
-                  background: step.accent === '#D4AF37' ? 'rgba(212,175,55,0.12)' : 'rgba(143,255,58,0.1)',
-                  color: step.accent,
-                  border: `1.5px solid ${step.accent}50`,
-                }}
+          {steps.map((step) => {
+            const isOpen = openStep === step.num
+            return (
+              <button
+                key={step.num}
+                type="button"
+                aria-expanded={isOpen}
+                onClick={() => setOpenStep(isOpen ? null : step.num)}
+                className="w-full text-left bg-[var(--black-card)] px-5 py-5 flex items-start gap-4 hover:bg-[#100e06] transition-colors"
               >
-                {step.num}
-              </div>
-
-              {/* Text */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span style={{ color: step.accent }}>{step.icon}</span>
-                  <h3 className="text-white font-black uppercase tracking-wide text-xs sm:text-sm">{step.title}</h3>
+                {/* Number circle */}
+                <div
+                  className="w-9 h-9 flex items-center justify-center font-black text-sm shrink-0 mt-0.5"
+                  style={{
+                    background: step.accent === '#D4AF37' ? 'rgba(212,175,55,0.12)' : 'rgba(143,255,58,0.1)',
+                    color: step.accent,
+                    border: `1.5px solid ${step.accent}50`,
+                  }}
+                >
+                  {step.num}
                 </div>
-                <p className="text-white/40 text-xs sm:text-sm leading-relaxed">{step.body}</p>
-              </div>
-            </div>
-          ))}
+
+                {/* Text */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span style={{ color: step.accent }}>{step.icon}</span>
+                    <h3 className="flex-1 text-white font-black uppercase tracking-wide text-xs sm:text-sm">{step.title}</h3>
+                    <svg
+                      width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke={step.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                      className="shrink-0 transition-transform duration-300"
+                      style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </div>
+                  <div
+                    className="grid transition-all duration-300 ease-in-out"
+                    style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}
+                  >
+                    <div className="overflow-hidden">
+                      <p className="text-white/40 text-xs sm:text-sm leading-relaxed pt-2">{step.body}</p>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            )
+          })}
         </div>
 
         {/* Payment methods note */}
